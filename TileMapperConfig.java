@@ -10,12 +10,12 @@ import net.runelite.client.config.Config;
 public interface TileMapperConfig extends Config{
     @Alpha
 	@ConfigItem(
-		keyName = "mappedTileFillColor",
-		name = "mapped tile Fill color",
-		description = "Configures the fill color of the mapped tiles",
+		keyName = "mappedTileColor",
+		name = "mapped tile  color",
+		description = "Configures the color of the mapped tiles",
 		position = 0
 	)
-	default Color mappedTileFillColor()
+	default Color mappedTileColor()
 	{
 		return new Color(0, 125, 0, 50);
 	}

@@ -40,8 +40,7 @@ public class TileMapperOverlay extends Overlay{
                 continue;
             }
 
-            OverlayUtil.renderPolygon(graphics, poly, config.mappedTileFillColor(), config.mappedTileFillColor(), new BasicStroke((float) 2));}}
+            OverlayUtil.renderPolygon(graphics, poly, config.mappedTileColor(), config.mappedTileColor(), new BasicStroke((float) 2));}}
         return null;
     }
-    
 }
