@@ -40,8 +40,8 @@ public class TileMapperPlugin extends Plugin implements Runnable{
 	@Inject
 	private TileMapperOverlay overlay;
 
-    public String getCurrentViewportType(){
-        return Viewport.getCurrent(client).name();
+    public Viewport getCurrentViewportType(){
+        return Viewport.getCurrent(client);
     }
 
     public boolean collectedTileLocationsDataExists(){
