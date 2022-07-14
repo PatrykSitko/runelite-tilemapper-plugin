@@ -2,7 +2,6 @@ package net.runelite.client.plugins.tileMapper;
 
 import lombok.Getter;
 import net.runelite.api.Client;
-import net.runelite.api.GameState;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.client.config.ConfigManager;
@@ -43,10 +42,6 @@ public class TileMapperPlugin extends Plugin implements Runnable{
 
     private boolean collectedTileLocationsDataExists(){
         return collectedTileLocations.size() > 0;
-    }
-
-    public boolean showSaveDataToFilePrompt(){
-        return  collectedTileLocationsDataExists();
     }
 
     public void clearCollectedTileLocationsData(){
