@@ -31,6 +31,11 @@ public class TileMapperOverlay extends Overlay{
 
     @Override
     public Dimension render(Graphics2D graphics) {
+        renderCollectedTileLocations(graphics);
+        return null;
+    }
+    
+    public void renderCollectedTileLocations(Graphics2D graphics){
         for(Integer x:plugin.getCollectedTileLocations().keySet()){
             for(Integer y:plugin.getCollectedTileLocations().get(x)){
             final Polygon poly = Perspective.getCanvasTilePoly(plugin.getClient(), new LocalPoint(x,y));
@@ -41,6 +46,5 @@ public class TileMapperOverlay extends Overlay{
             }
 
             OverlayUtil.renderPolygon(graphics, poly, config.mappedTileColor(), config.mappedTileColor(), new BasicStroke((float) 2));}}
-        return null;
     }
 }
