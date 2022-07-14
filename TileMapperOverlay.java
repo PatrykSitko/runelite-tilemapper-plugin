@@ -1,7 +1,6 @@
 package net.runelite.client.plugins.tileMapper;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
@@ -42,8 +41,6 @@ public class TileMapperOverlay extends Overlay{
             }
 
             OverlayUtil.renderPolygon(graphics, poly, config.mappedTileFillColor(), config.mappedTileFillColor(), new BasicStroke((float) 2));}}
-        graphics.setColor(new Color(191,255,0));
-        graphics.fillRect(800, 0, 100, 100);
         return null;
     }
     
