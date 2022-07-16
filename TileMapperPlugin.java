@@ -38,7 +38,10 @@ public class TileMapperPlugin extends Plugin implements Runnable{
 	private OverlayManager overlayManager;
 
 	@Inject
-	private TileMapperOverlay overlay;
+	private TileMapperOverlay tileMapperOverlay;
+
+    @Inject
+    private SaveDataButtonOverlay saveDataButtonOverlay;
 
     public Viewport getCurrentViewportType(){
         return Viewport.getCurrent(client);
@@ -55,13 +58,15 @@ public class TileMapperPlugin extends Plugin implements Runnable{
 	@Override
 	protected void startUp() throws Exception
 	{
-		overlayManager.add(overlay);
+		overlayManager.add(tileMapperOverlay);
+        overlayManager.add(saveDataButtonOverlay);
 	}
 
 	@Override
 	protected void shutDown() throws Exception
 	{
-		overlayManager.remove(overlay);
+		overlayManager.remove(tileMapperOverlay);
+        overlayManager.remove(saveDataButtonOverlay);
 	}
     
 	@Provides
