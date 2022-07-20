@@ -48,7 +48,9 @@ public class SaveDataButtonOverlay extends Overlay implements MouseListener{
         hoverInfo.setText("Save Collected Tile Data");
     }
 
-    public void cleardisplayPathPickerOverlay(){
+    /** Should be cleared once the path picker overlay is displayed.
+     */
+    public void clearDisplayPathPickerOverlayVar(){
         displayPathPickerOverlay = false;
     }
     
