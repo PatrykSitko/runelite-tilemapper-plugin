@@ -23,7 +23,6 @@ import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.OverlayPriority;
 import net.runelite.client.ui.overlay.components.TooltipComponent;
 
-// TODO make hoverInfo TooltipComponent stay in canvas bounds.
 public class SaveDataButtonOverlay extends Overlay implements MouseListener{
     private final TileMapperPlugin plugin;
     private final Client client;
@@ -34,7 +33,7 @@ public class SaveDataButtonOverlay extends Overlay implements MouseListener{
     private Dimension dimension = new Dimension(30, 30);
     private boolean mouseIsHovering = false;
     @Getter
-    private boolean openSaveFileOverlay = false;
+    private boolean displayPathPickerOverlay = false;
     private final TooltipComponent hoverInfo;
 
     @Inject
@@ -49,8 +48,8 @@ public class SaveDataButtonOverlay extends Overlay implements MouseListener{
         hoverInfo.setText("Save Collected Tile Data");
     }
 
-    public void clearOpenSaveFileOverlay(){
-        openSaveFileOverlay = false;
+    public void cleardisplayPathPickerOverlay(){
+        displayPathPickerOverlay = false;
     }
     
     private void setLocation(int x,int y){
@@ -112,7 +111,7 @@ public class SaveDataButtonOverlay extends Overlay implements MouseListener{
     public MouseEvent mouseClicked(MouseEvent mouseEvent) {
         if(mouseIsHovering){
             mouseEvent.consume();
-            openSaveFileOverlay = true;
+            displayPathPickerOverlay = true;
         }
         return mouseEvent;
     }
