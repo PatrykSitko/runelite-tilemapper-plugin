@@ -10,13 +10,11 @@ import java.awt.Color;
 
 import javax.inject.Inject;
 
-
 import lombok.Getter;
 import net.runelite.api.Client;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.input.MouseListener;
-import net.runelite.client.input.MouseManager;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -35,17 +33,18 @@ public class SaveDataButtonOverlay extends Overlay implements MouseListener{
     @Getter
     private boolean displayPathPickerOverlay = false;
     private final TooltipComponent hoverInfo;
+    private final String HOVERINFO_TEXT = "Save Collected Tile Data";
+    private Integer hoverinfoTextWidth;
 
     @Inject
-    public SaveDataButtonOverlay(TileMapperPlugin plugin,MouseManager mouseManager){
+    public SaveDataButtonOverlay(TileMapperPlugin plugin){
         this.plugin = plugin;
         this.client = plugin.getClient();
-        mouseManager.registerMouseListener(this);
-		setPosition(OverlayPosition.DYNAMIC);
+		setPosition(OverlayPosition.TOOLTIP);
 		setLayer(OverlayLayer.ABOVE_WIDGETS);
 		setPriority(OverlayPriority.MED);
         hoverInfo = new TooltipComponent();
-        hoverInfo.setText("Save Collected Tile Data");
+        hoverInfo.setText(HOVERINFO_TEXT);
     }
 
     /** Should be cleared once the path picker overlay is displayed.
@@ -77,6 +76,9 @@ public class SaveDataButtonOverlay extends Overlay implements MouseListener{
     }
     @Override
     public Dimension render(Graphics2D graphics) {
+        if(hoverinfoTextWidth == null){
+            hoverinfoTextWidth = graphics.getFontMetrics().stringWidth(HOVERINFO_TEXT);
+        }
         if(mouseIsHovering){
             hoverInfo.render(graphics);
         }
@@ -97,21 +99,24 @@ public class SaveDataButtonOverlay extends Overlay implements MouseListener{
             case RESIZABLE_MODERN_LAYOUT:
                 this.setLocation(worldmapOrb.getBounds().x - 55, worldmapOrb.getBounds().y + 33);
                 this.setDimension(30, 30);
+                
             break;
         }
+        super.getBounds().setLocation(location);
+        super.getBounds().setSize(dimension);
         drawButtonBackground(graphics);
-        graphics.drawImage(saveButtonImage, location.x,location.y,dimension.width,dimension.height,null);
+        graphics.drawImage(saveButtonImage, 0,0,super.getBounds().width,super.getBounds().height,null);
         return null;
     }
 
     private void drawButtonBackground(Graphics2D graphics){
         graphics.setColor(mouseIsHovering?BUTTON_BACKGROUND_COLOR_HOVER:BUTTON_BACKGROUND_COLOR_NORMAL);
-        graphics.fillOval(location.x,location.y,dimension.width,dimension.height);
+        graphics.fillOval(0,0,dimension.width,dimension.height);
     }
 
     @Override
     public MouseEvent mouseClicked(MouseEvent mouseEvent) {
-        if(mouseIsHovering){
+        if(mouseIsHovering && mouseEvent.getButton() == MouseEvent.BUTTON1){
             mouseEvent.consume();
             displayPathPickerOverlay = true;
         }
@@ -152,13 +157,16 @@ public class SaveDataButtonOverlay extends Overlay implements MouseListener{
     @Override
     public MouseEvent mouseMoved(MouseEvent mouseEvent) {
         mouseIsHovering = mouseInBounds(mouseEvent);
+        if(!mouseIsHovering){
+            return mouseEvent;
+        }
         int hoverPositionX = mouseEvent.getX();
         int hoverPositionY = mouseEvent.getY();
-        // if(hoverPositionX + hoverInfo.getBounds().width  > client.getCanvasWidth()){
-        //     hoverPositionX = client.getCanvasWidth() - hoverInfo.getBounds().width;
-        // }
-        hoverInfo.setPosition(new Point(hoverPositionX,hoverPositionY + 25));
-        return mouseEvent;
+        if(hoverinfoTextWidth != null && hoverPositionX + hoverinfoTextWidth + 8  > client.getCanvasWidth()){
+            hoverPositionX = client.getCanvasWidth() - (hoverinfoTextWidth + 8);
+        }
+        hoverInfo.setPosition(new Point(hoverPositionX - super.getBounds().x, hoverPositionY - super.getBounds().y + 25));
+        return new MouseEvent(mouseEvent.getComponent(),MouseEvent.MOUSE_MOVED,mouseEvent.getWhen(),mouseEvent.getModifiersEx(),client.getCanvasWidth(),client.getCanvasHeight(),mouseEvent.getClickCount(),mouseEvent.isPopupTrigger(),mouseEvent.getButton());
     }
     
 }
