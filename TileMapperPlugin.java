@@ -6,6 +6,8 @@ import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.input.KeyManager;
+import net.runelite.client.input.MouseManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -29,6 +31,12 @@ public class TileMapperPlugin extends Plugin implements Runnable{
     @Getter
     private volatile HashMap<Integer,ArrayList<Integer>> collectedTileLocations = new HashMap<>();
     private volatile Thread tileLocationsCollectionThread;
+
+    @Inject
+    private MouseManager mouseManager;
+
+    @Inject
+    private KeyManager keyManager;
     
     @Getter
     @Inject
@@ -42,6 +50,9 @@ public class TileMapperPlugin extends Plugin implements Runnable{
 
     @Inject
     private SaveDataButtonOverlay saveDataButtonOverlay;
+
+    @Inject
+    private SaveTileDataToPathOverlay saveTileDataToPathOverlay;
 
     public Viewport getCurrentViewportType(){
         return Viewport.getCurrent(client);
@@ -60,6 +71,9 @@ public class TileMapperPlugin extends Plugin implements Runnable{
 	{
 		overlayManager.add(tileMapperOverlay);
         overlayManager.add(saveDataButtonOverlay);
+        overlayManager.add(saveTileDataToPathOverlay);
+        mouseManager.registerMouseListener(saveDataButtonOverlay);
+        keyManager.registerKeyListener(saveTileDataToPathOverlay);
 	}
 
 	@Override
@@ -67,6 +81,9 @@ public class TileMapperPlugin extends Plugin implements Runnable{
 	{
 		overlayManager.remove(tileMapperOverlay);
         overlayManager.remove(saveDataButtonOverlay);
+        overlayManager.remove(saveTileDataToPathOverlay);
+        mouseManager.unregisterMouseListener(saveDataButtonOverlay);
+        keyManager.unregisterKeyListener(saveTileDataToPathOverlay);
 	}
     
 	@Provides
