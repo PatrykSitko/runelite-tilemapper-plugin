@@ -30,7 +30,6 @@ public class SaveDataButtonOverlay extends Overlay implements MouseListener{
     private Point location = new Point(0,0);
     private Dimension dimension = new Dimension(30, 30);
     private boolean mouseIsHovering = false;
-    @Getter
     private boolean displayPathPickerOverlay = false;
     private final TooltipComponent hoverInfo;
     private final String HOVERINFO_TEXT = "Save Collected Tile Data";
@@ -47,8 +46,10 @@ public class SaveDataButtonOverlay extends Overlay implements MouseListener{
         hoverInfo.setText(HOVERINFO_TEXT);
     }
 
-    /** Should be cleared once the path picker overlay is displayed.
-     */
+    public boolean displayPathPickerOverlay(){
+        return displayPathPickerOverlay;
+    }
+    
     public void clearDisplayPathPickerOverlayVar(){
         displayPathPickerOverlay = false;
     }
