@@ -50,6 +50,7 @@ public class TileMapperPlugin extends Plugin implements Runnable {
   private TileMapperOverlay tileMapperOverlay;
 
   @Inject
+  @Getter
   private SaveDataButtonOverlay saveDataButtonOverlay;
 
   @Inject
