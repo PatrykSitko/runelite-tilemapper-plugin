@@ -1,5 +1,10 @@
 package net.runelite.client.plugins.tileMapper;
 
+import com.google.inject.Provides;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import javax.inject.Inject;
 import lombok.Getter;
 import net.runelite.api.Client;
 import net.runelite.api.coords.LocalPoint;
@@ -12,124 +17,131 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-
-import javax.inject.Inject;
-import com.google.inject.Provides;
-
 @PluginDescriptor(
-	name = "Tile Mapper",
-	description = "Maps tiles the player walked on and saved the values to a file while displaying marked tiles.",
-	tags = {"tiles"},
-	enabledByDefault = false
+  name = "Tile Mapper",
+  description = "Maps tiles the player walked on and saved the values to a file while displaying marked tiles.",
+  tags = { "tiles" },
+  enabledByDefault = false
 )
-public class TileMapperPlugin extends Plugin implements Runnable{
-    public static final String CONFIG_GROUP = "tilemapper";
-    private volatile boolean collectTileLocations = false;
-    @Getter
-    private volatile HashMap<Integer,ArrayList<Integer>> collectedTileLocations = new HashMap<>();
-    private volatile Thread tileLocationsCollectionThread;
+public class TileMapperPlugin extends Plugin implements Runnable {
 
-    @Inject
-    private MouseManager mouseManager;
+  public static final String CONFIG_GROUP = "tilemapper";
+  private volatile boolean collectTileLocations = false;
 
-    @Inject
-    private KeyManager keyManager;
-    
-    @Getter
-    @Inject
-    private volatile Client client;
-    
-	@Inject
-	private OverlayManager overlayManager;
+  @Getter
+  private volatile HashMap<Integer, ArrayList<Integer>> collectedTileLocations = new HashMap<>();
 
-	@Inject
-	private TileMapperOverlay tileMapperOverlay;
+  private volatile Thread tileLocationsCollectionThread;
 
-    @Inject
-    private SaveDataButtonOverlay saveDataButtonOverlay;
+  @Inject
+  private MouseManager mouseManager;
 
-    @Inject
-    private SaveTileDataToPathOverlay saveTileDataToPathOverlay;
+  @Inject
+  private KeyManager keyManager;
 
-    public Viewport getCurrentViewportType(){
-        return Viewport.getCurrent(client);
-    }
+  @Getter
+  @Inject
+  private volatile Client client;
 
-    public boolean collectedTileLocationsDataExists(){
-        return collectedTileLocations.size() > 0;
-    }
+  @Inject
+  private OverlayManager overlayManager;
 
-    public void clearCollectedTileLocationsData(){
-        collectedTileLocations = new HashMap<>();
-    }
+  @Inject
+  private TileMapperOverlay tileMapperOverlay;
 
-	@Override
-	protected void startUp() throws Exception
-	{
-		overlayManager.add(tileMapperOverlay);
-        overlayManager.add(saveDataButtonOverlay);
-        overlayManager.add(saveTileDataToPathOverlay);
-        mouseManager.registerMouseListener(saveDataButtonOverlay);
-        keyManager.registerKeyListener(saveTileDataToPathOverlay);
-	}
+  @Inject
+  private SaveDataButtonOverlay saveDataButtonOverlay;
 
-	@Override
-	protected void shutDown() throws Exception
-	{
-		overlayManager.remove(tileMapperOverlay);
-        overlayManager.remove(saveDataButtonOverlay);
-        overlayManager.remove(saveTileDataToPathOverlay);
-        mouseManager.unregisterMouseListener(saveDataButtonOverlay);
-        keyManager.unregisterKeyListener(saveTileDataToPathOverlay);
-	}
-    
-	@Provides
-	TileMapperConfig provideConfig(ConfigManager configManager)
-	{
-		return configManager.getConfig(TileMapperConfig.class);
-	}
+  @Inject
+  private SaveTileDataToPathOverlay saveTileDataToPathOverlay;
 
-	@Subscribe
-	public void onGameStateChanged(GameStateChanged event)
-	{
-        switch(event.getGameState()){
-            default:
-			case LOADING:
-			case HOPPING:
-            case LOGIN_SCREEN:
-            collectTileLocations = false;
-            if(tileLocationsCollectionThread != null &&(!tileLocationsCollectionThread.isInterrupted()||tileLocationsCollectionThread.isAlive())){
-                tileLocationsCollectionThread.interrupt();
-            }
-            break;
-            case LOGGED_IN:
-            collectTileLocations = true;
-            tileLocationsCollectionThread = new Thread(this);
-            tileLocationsCollectionThread.setName("tileLocationsCollectionThread");
-            tileLocationsCollectionThread.setDaemon(true);
-            tileLocationsCollectionThread.start();
-            break;
+  public Viewport getCurrentViewportType() {
+    return Viewport.getCurrent(client);
+  }
+
+  public boolean collectedTileLocationsDataExists() {
+    return collectedTileLocations.size() > 0;
+  }
+
+  public void clearCollectedTileLocationsData() {
+    collectedTileLocations = new HashMap<>();
+  }
+
+  @Override
+  protected void startUp() throws Exception {
+    overlayManager.add(tileMapperOverlay);
+    overlayManager.add(saveDataButtonOverlay);
+    overlayManager.add(saveTileDataToPathOverlay);
+    mouseManager.registerMouseListener(saveDataButtonOverlay);
+    keyManager.registerKeyListener(saveTileDataToPathOverlay);
+  }
+
+  @Override
+  protected void shutDown() throws Exception {
+    overlayManager.remove(tileMapperOverlay);
+    overlayManager.remove(saveDataButtonOverlay);
+    overlayManager.remove(saveTileDataToPathOverlay);
+    mouseManager.unregisterMouseListener(saveDataButtonOverlay);
+    keyManager.unregisterKeyListener(saveTileDataToPathOverlay);
+  }
+
+  @Provides
+  TileMapperConfig provideConfig(ConfigManager configManager) {
+    return configManager.getConfig(TileMapperConfig.class);
+  }
+
+  @Subscribe
+  public void onGameStateChanged(GameStateChanged event) {
+    switch (event.getGameState()) {
+      default:
+      case LOADING:
+      case HOPPING:
+      case LOGIN_SCREEN:
+        collectTileLocations = false;
+        if (
+          tileLocationsCollectionThread != null &&
+          (
+            !tileLocationsCollectionThread.isInterrupted() ||
+            tileLocationsCollectionThread.isAlive()
+          )
+        ) {
+          tileLocationsCollectionThread.interrupt();
         }
-	}
-    @Override
-    public void run() {
-        do{
-            if(!collectTileLocations){
-                continue;
-            }
-            LocalPoint localPlayerLocation = LocalPoint.fromWorld(client, client.getLocalPlayer().getWorldLocation());
-            if(collectedTileLocations.get(localPlayerLocation.getX())==null){
-            collectedTileLocations.put(localPlayerLocation.getX(), new ArrayList<>(Arrays.asList(localPlayerLocation.getY())));
-            }else{
-                ArrayList<Integer> Ylocations = collectedTileLocations.get(localPlayerLocation.getX());
-                if(!Ylocations.contains(localPlayerLocation.getY())){
-                    Ylocations.add(localPlayerLocation.getY());
-                collectedTileLocations.put(localPlayerLocation.getX(),Ylocations);
-            }
-            }
-        }while(!tileLocationsCollectionThread.isInterrupted());
+        break;
+      case LOGGED_IN:
+        collectTileLocations = true;
+        tileLocationsCollectionThread = new Thread(this);
+        tileLocationsCollectionThread.setName("tileLocationsCollectionThread");
+        tileLocationsCollectionThread.setDaemon(true);
+        tileLocationsCollectionThread.start();
+        break;
     }
+  }
+
+  @Override
+  public void run() {
+    do {
+      if (!collectTileLocations) {
+        continue;
+      }
+      LocalPoint localPlayerLocation = LocalPoint.fromWorld(
+        client,
+        client.getLocalPlayer().getWorldLocation()
+      );
+      if (collectedTileLocations.get(localPlayerLocation.getX()) == null) {
+        collectedTileLocations.put(
+          localPlayerLocation.getX(),
+          new ArrayList<>(Arrays.asList(localPlayerLocation.getY()))
+        );
+      } else {
+        ArrayList<Integer> Ylocations = collectedTileLocations.get(
+          localPlayerLocation.getX()
+        );
+        if (!Ylocations.contains(localPlayerLocation.getY())) {
+          Ylocations.add(localPlayerLocation.getY());
+          collectedTileLocations.put(localPlayerLocation.getX(), Ylocations);
+        }
+      }
+    } while (!tileLocationsCollectionThread.isInterrupted());
+  }
 }
