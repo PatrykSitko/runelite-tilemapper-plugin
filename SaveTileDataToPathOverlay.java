@@ -1,14 +1,12 @@
 package net.runelite.client.plugins.tileMapper;
 
-// import javax.inject.Inject;
-
-import com.google.inject.Inject;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import javax.inject.Inject;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.input.MouseListener;
@@ -26,12 +24,17 @@ public class SaveTileDataToPathOverlay
   private ArrayList<Integer> keyPresses;
   private boolean enabledListeners = false;
   private final SaveDataButtonOverlay SAVE_DATA_BUTTON_OVERLAY;
+  private final Background background = new Background(
+    607,
+    44,
+    491,
+    802,
+    Background.Type.DARK
+  );
 
   @Inject
-  public SaveTileDataToPathOverlay(
-    SaveDataButtonOverlay saveDataButtonOverlay
-  ) {
-    this.SAVE_DATA_BUTTON_OVERLAY = saveDataButtonOverlay;
+  public SaveTileDataToPathOverlay(TileMapperPlugin tileMapperPlugin) {
+    this.SAVE_DATA_BUTTON_OVERLAY = tileMapperPlugin.getSaveDataButtonOverlay();
     setPosition(OverlayPosition.DYNAMIC);
     setLayer(OverlayLayer.ABOVE_WIDGETS);
     setPriority(OverlayPriority.MED);
@@ -52,7 +55,7 @@ public class SaveTileDataToPathOverlay
   @Override
   public Dimension render(Graphics2D graphics) {
     if (SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay()) {
-      System.out.println("save data overlay");
+      background.render(graphics);
     }
     return null;
   }
@@ -62,19 +65,16 @@ public class SaveTileDataToPathOverlay
     if (enabledListeners) {
       mouseClicks.add(mouseEvent.getPoint());
     }
-    mouseEvent.consume();
     return mouseEvent;
   }
 
   @Override
   public MouseEvent mousePressed(MouseEvent mouseEvent) {
-    mouseEvent.consume();
     return mouseEvent;
   }
 
   @Override
   public MouseEvent mouseReleased(MouseEvent mouseEvent) {
-    mouseEvent.consume();
     return mouseEvent;
   }
 
