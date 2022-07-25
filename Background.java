@@ -15,11 +15,24 @@ import net.runelite.client.ui.overlay.RenderableEntity;
 
 public class Background implements RenderableEntity {
 
-  @AllArgsConstructor
   public static class PositionedImage {
 
     private final BufferedImage image;
     private final int x, y, width, height;
+
+    public PositionedImage(
+      BufferedImage image,
+      int x,
+      int y,
+      int width,
+      int height
+    ) {
+      this.image = image.getSubimage(0, 0, width, height);
+      this.x = x;
+      this.y = y;
+      this.width = width;
+      this.height = height;
+    }
 
     public void draw(Graphics2D graphics) {
       graphics.drawImage(image, x, y, width, height, null);
@@ -300,60 +313,27 @@ public class Background implements RenderableEntity {
       currentPiece <= totalAmmountOfPiecesToBeDrawn - 1;
       currentPiece++
     ) {
-      if (
-        currentPiece == totalAmmountOfPiecesToBeDrawn - 1 && lastPieceWidth > 0
-      ) {
-        final BufferedImage topPiece = topBorderPiece.getSubimage(
-          0,
-          0,
-          lastPieceWidth,
+      final boolean useLastPieceWidth =
+        currentPiece == totalAmmountOfPiecesToBeDrawn - 1 && lastPieceWidth > 0;
+      border.add(
+        new PositionedImage(
+          topBorderPiece,
+          xPos,
+          topYpos,
+          useLastPieceWidth ? lastPieceWidth : topBorderPiece.getWidth(),
           topBorderPiece.getHeight()
-        );
-        final BufferedImage bottomPiece = bottomBorderPiece.getSubimage(
-          0,
-          0,
-          lastPieceWidth,
+        )
+      );
+      border.add(
+        new PositionedImage(
+          bottomBorderPiece,
+          xPos,
+          bottomYpos,
+          useLastPieceWidth ? lastPieceWidth : bottomBorderPiece.getWidth(),
           bottomBorderPiece.getHeight()
-        );
-        border.add(
-          new PositionedImage(
-            topPiece,
-            xPos,
-            topYpos,
-            topPiece.getWidth(),
-            topPiece.getHeight()
-          )
-        );
-        border.add(
-          new PositionedImage(
-            bottomPiece,
-            xPos,
-            bottomYpos,
-            bottomPiece.getWidth(),
-            bottomPiece.getHeight()
-          )
-        );
-      } else {
-        border.add(
-          new PositionedImage(
-            topBorderPiece,
-            xPos,
-            topYpos,
-            topBorderPiece.getWidth(),
-            topBorderPiece.getHeight()
-          )
-        );
-        border.add(
-          new PositionedImage(
-            bottomBorderPiece,
-            xPos,
-            bottomYpos,
-            bottomBorderPiece.getWidth(),
-            bottomBorderPiece.getHeight()
-          )
-        );
-        xPos += borderPieceWidth;
-      }
+        )
+      );
+      xPos += borderPieceWidth;
     }
   }
 
@@ -377,60 +357,27 @@ public class Background implements RenderableEntity {
       currentPiece <= totalAmmountOfPiecesToBeDrawn - 1;
       currentPiece++
     ) {
-      if (
-        currentPiece == totalAmmountOfPiecesToBeDrawn - 1 && lastPieceHeigh > 0
-      ) {
-        final BufferedImage leftPiece = leftBorderPiece.getSubimage(
-          0,
-          0,
-          leftBorderPiece.getWidth(),
-          lastPieceHeigh
-        );
-        final BufferedImage rightPiece = rightBorderPiece.getSubimage(
-          0,
-          0,
-          rightBorderPiece.getWidth(),
-          lastPieceHeigh
-        );
-        border.add(
-          new PositionedImage(
-            leftPiece,
-            leftXpos,
-            yPos,
-            leftPiece.getWidth(),
-            leftPiece.getHeight()
-          )
-        );
-        border.add(
-          new PositionedImage(
-            rightPiece,
-            rightXpos,
-            yPos,
-            rightPiece.getWidth(),
-            rightPiece.getHeight()
-          )
-        );
-      } else {
-        border.add(
-          new PositionedImage(
-            leftBorderPiece,
-            leftXpos,
-            yPos,
-            leftBorderPiece.getWidth(),
-            leftBorderPiece.getHeight()
-          )
-        );
-        border.add(
-          new PositionedImage(
-            rightBorderPiece,
-            rightXpos,
-            yPos,
-            rightBorderPiece.getWidth(),
-            rightBorderPiece.getHeight()
-          )
-        );
-        yPos += borderPieceHeight;
-      }
+      final boolean useLastPieceHeight =
+        currentPiece == totalAmmountOfPiecesToBeDrawn - 1 && lastPieceHeigh > 0;
+      border.add(
+        new PositionedImage(
+          leftBorderPiece,
+          leftXpos,
+          yPos,
+          useLastPieceHeight ? lastPieceHeigh : leftBorderPiece.getWidth(),
+          leftBorderPiece.getHeight()
+        )
+      );
+      border.add(
+        new PositionedImage(
+          rightBorderPiece,
+          rightXpos,
+          yPos,
+          useLastPieceHeight ? lastPieceHeigh : rightBorderPiece.getWidth(),
+          rightBorderPiece.getHeight()
+        )
+      );
+      yPos += borderPieceHeight;
     }
   }
 }
