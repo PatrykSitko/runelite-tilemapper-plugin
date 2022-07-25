@@ -90,7 +90,6 @@ public class Background implements RenderableEntity {
   private Rectangle previousBounds;
   private final Type backgroundType;
 
-  private ArrayList<Thread> backgroundRowThreads;
   private volatile ArrayList<PositionedImage> background = new ArrayList<>();
   private ArrayList<PositionedImage> border = new ArrayList<>();
 
@@ -190,12 +189,7 @@ public class Background implements RenderableEntity {
     (lastPieceWidth != 0 ? 1 : 0);
     final int ammountOfRows = (int) ammountOfRowsFloat +
     (lastPieceHeight != 0 ? 1 : 0);
-    if (backgroundRowThreads != null) {
-      backgroundRowThreads.forEach(
-        backgroundRowThread -> backgroundRowThread.interrupt()
-      );
-    }
-    backgroundRowThreads = new ArrayList<>();
+    ArrayList<Thread> backgroundRowThreads = new ArrayList<>();
     for (int column = 0; column <= ammountOfColumns - 1; column++) {
       final int finalColumn = column;
       final Thread rowThread = new Thread(
