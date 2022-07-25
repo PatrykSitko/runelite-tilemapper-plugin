@@ -220,15 +220,7 @@ public class Background implements RenderableEntity {
               : pieceHeight;
             synchronized (Background.class) {
               background.add(
-                new PositionedImage(
-                  (width == lastPieceWidth || height == lastPieceHeight)
-                    ? backgroundImage.getSubimage(0, 0, width, height)
-                    : backgroundImage,
-                  x,
-                  y,
-                  width,
-                  height
-                )
+                new PositionedImage(backgroundImage, x, y, width, height)
               );
             }
           }
