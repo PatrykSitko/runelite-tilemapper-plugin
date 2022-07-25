@@ -13,7 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.runelite.client.ui.overlay.RenderableEntity;
 
-// TODO draw background fill.
 public class Background implements RenderableEntity {
 
   @AllArgsConstructor
@@ -91,6 +90,8 @@ public class Background implements RenderableEntity {
   private Rectangle previousBounds;
   private final Type backgroundType;
 
+  private ArrayList<Thread> backgroundRowThreads;
+  private volatile ArrayList<PositionedImage> background = new ArrayList<>();
   private ArrayList<PositionedImage> border = new ArrayList<>();
 
   public Background(int x, int y, int width, int height, Type backgoundType) {
@@ -106,11 +107,25 @@ public class Background implements RenderableEntity {
     return this.bounds.getLocation();
   }
 
+  private float calculateAmmountOfHorizontalBackgroundPieces() {
+    final int backgroundWidth = backgroundType.getBackground().getWidth();
+    final int containerWidth = this.bounds.width;
+    final double ammountOfFittingPieces =
+      ((double) containerWidth) / ((double) backgroundWidth);
+    return Float.parseFloat(DECIMAL_FORMAT.format(ammountOfFittingPieces));
+  }
+
+  private float calculateAmmountOfVerticalBackgroundPieces() {
+    final int backgroundHeight = backgroundType.getBackground().getHeight();
+    final int containerHeight = this.bounds.height;
+    final double ammountOfFittingPieces =
+      ((double) containerHeight) / ((double) backgroundHeight);
+    return Float.parseFloat(DECIMAL_FORMAT.format(ammountOfFittingPieces));
+  }
+
   private float calculateAmmountOfHorizontalBorderPieces() {
-    final int cornerPieceWidth = backgroundType
-      .getLeftTopCorner()
-      .getWidth(null);
-    final int borderPieceWidth = backgroundType.getTopBorder().getWidth(null);
+    final int cornerPieceWidth = backgroundType.getLeftTopCorner().getWidth();
+    final int borderPieceWidth = backgroundType.getTopBorder().getWidth();
     final int containerWidth = this.bounds.width;
     final int borderWidthWithoutCorners =
       containerWidth - (cornerPieceWidth * 2);
@@ -122,12 +137,8 @@ public class Background implements RenderableEntity {
   }
 
   private float calculateAmmountOfVerticalBorderPieces() {
-    final int cornerPieceHeight = backgroundType
-      .getLeftTopCorner()
-      .getHeight(null);
-    final int borderPieceHeight = backgroundType
-      .getLeftBorder()
-      .getHeight(null);
+    final int cornerPieceHeight = backgroundType.getLeftTopCorner().getHeight();
+    final int borderPieceHeight = backgroundType.getLeftBorder().getHeight();
     final int containerHeight = this.bounds.height;
     final int borderHeightWithoutCorners =
       containerHeight - (cornerPieceHeight * 2);
@@ -148,18 +159,80 @@ public class Background implements RenderableEntity {
   private void drawBackgroundBorder(Graphics2D graphics) {
     if (!bounds.equals(previousBounds)) {
       previousBounds = new Rectangle(bounds);
+      background = new ArrayList<>();
       border = new ArrayList<>();
+      populateBackgroundArray(background);
       populateBorderArrayWithCornerEntries(border);
       populateBorderArrayWithHorizontalEntries(border);
       populateBorderArrayWithVerticalEntries(border);
     }
+    background.forEach(entry -> entry.draw(graphics));
     border.forEach(entry -> entry.draw(graphics));
+  }
+
+  private void populateBackgroundArray(ArrayList<PositionedImage> background) {
+    final BufferedImage backgroundImage = backgroundType.getBackground();
+    final int startingXposition = this.bounds.x;
+    final int startingYposition = this.bounds.y;
+    final float ammountOfColumnsFloat = calculateAmmountOfHorizontalBackgroundPieces();
+    final float ammountOfRowsFloat = calculateAmmountOfVerticalBackgroundPieces();
+    final int pieceWidth = backgroundImage.getWidth();
+    final int pieceHeight = backgroundImage.getHeight();
+    final int lastPieceWidth = (int) (
+      backgroundImage.getWidth() *
+      (ammountOfColumnsFloat - (int) ammountOfColumnsFloat)
+    );
+    final int lastPieceHeight = (int) (
+      backgroundImage.getHeight() *
+      (ammountOfRowsFloat - (int) ammountOfRowsFloat)
+    );
+    final int ammountOfColumns = (int) ammountOfColumnsFloat +
+    (lastPieceWidth != 0 ? 1 : 0);
+    final int ammountOfRows = (int) ammountOfRowsFloat +
+    (lastPieceHeight != 0 ? 1 : 0);
+    if (backgroundRowThreads != null) {
+      backgroundRowThreads.forEach(
+        backgroundRowThread -> backgroundRowThread.interrupt()
+      );
+    }
+    backgroundRowThreads = new ArrayList<>();
+    for (int column = 0; column <= ammountOfColumns - 1; column++) {
+      final int finalColumn = column;
+      final Thread rowThread = new Thread(
+        () -> {
+          for (int row = 0; row <= ammountOfRows - 1; row++) {
+            final boolean isLastColumn = finalColumn == ammountOfColumns - 1;
+            final boolean isLastRow = row == ammountOfRows - 1;
+            final int x = startingXposition + finalColumn * pieceWidth;
+            final int y = startingYposition + row * pieceHeight;
+            final int width = isLastColumn && lastPieceWidth > 0
+              ? lastPieceWidth
+              : pieceWidth;
+            final int height = isLastRow && lastPieceHeight > 0
+              ? lastPieceHeight
+              : pieceHeight;
+            synchronized (Background.class) {
+              background.add(
+                new PositionedImage(backgroundImage, x, y, width, height)
+              );
+            }
+          }
+        }
+      );
+      backgroundRowThreads.add(rowThread);
+    }
+    backgroundRowThreads.forEach(
+      rowThread -> {
+        rowThread.setDaemon(true);
+        rowThread.start();
+      }
+    );
   }
 
   private void populateBorderArrayWithCornerEntries(
     ArrayList<PositionedImage> border
   ) {
-    BufferedImage leftTop = backgroundType.getLeftTopCorner();
+    final BufferedImage leftTop = backgroundType.getLeftTopCorner();
     border.add(
       new PositionedImage(
         leftTop,
@@ -170,7 +243,7 @@ public class Background implements RenderableEntity {
       )
     );
 
-    BufferedImage rightTop = backgroundType.getRightTopCorner();
+    final BufferedImage rightTop = backgroundType.getRightTopCorner();
     border.add(
       new PositionedImage(
         rightTop,
@@ -181,7 +254,7 @@ public class Background implements RenderableEntity {
       )
     );
 
-    BufferedImage leftBottom = backgroundType.getLeftBottomCorner();
+    final BufferedImage leftBottom = backgroundType.getLeftBottomCorner();
     border.add(
       new PositionedImage(
         leftBottom,
@@ -192,7 +265,7 @@ public class Background implements RenderableEntity {
       )
     );
 
-    BufferedImage rightBottom = backgroundType.getRightBottomCorner();
+    final BufferedImage rightBottom = backgroundType.getRightBottomCorner();
     border.add(
       new PositionedImage(
         rightBottom,
@@ -207,18 +280,18 @@ public class Background implements RenderableEntity {
   private void populateBorderArrayWithHorizontalEntries(
     ArrayList<PositionedImage> border
   ) {
-    BufferedImage topBorderPiece = backgroundType.getTopBorder();
-    BufferedImage bottomBorderPiece = backgroundType.getBottomBorder();
-    float ammountOfPieces = calculateAmmountOfHorizontalBorderPieces();
-    int lastPieceWidth = (int) (
+    final BufferedImage topBorderPiece = backgroundType.getTopBorder();
+    final BufferedImage bottomBorderPiece = backgroundType.getBottomBorder();
+    final float ammountOfPieces = calculateAmmountOfHorizontalBorderPieces();
+    final int lastPieceWidth = (int) (
       topBorderPiece.getWidth() * (ammountOfPieces - (int) ammountOfPieces)
     );
-    int totalAmmountOfPiecesToBeDrawn = (int) ammountOfPieces +
-    (lastPieceWidth != 0.0f ? 1 : 0);
-    int borderPieceWidth = topBorderPiece.getWidth();
+    final int totalAmmountOfPiecesToBeDrawn = (int) ammountOfPieces +
+    (lastPieceWidth != 0 ? 1 : 0);
+    final int borderPieceWidth = topBorderPiece.getWidth();
     int xPos = bounds.x + backgroundType.getLeftTopCorner().getWidth();
-    int topYpos = bounds.y;
-    int bottomYpos =
+    final int topYpos = bounds.y;
+    final int bottomYpos =
       bounds.y + bounds.height - backgroundType.getBottomBorder().getHeight();
     for (
       int currentPiece = 0;
@@ -226,8 +299,7 @@ public class Background implements RenderableEntity {
       currentPiece++
     ) {
       if (
-        currentPiece == totalAmmountOfPiecesToBeDrawn - 1 &&
-        lastPieceWidth > 0.0f
+        currentPiece == totalAmmountOfPiecesToBeDrawn - 1 && lastPieceWidth > 0
       ) {
         final BufferedImage topPiece = topBorderPiece.getSubimage(
           0,
@@ -286,26 +358,25 @@ public class Background implements RenderableEntity {
   private void populateBorderArrayWithVerticalEntries(
     ArrayList<PositionedImage> border
   ) {
-    BufferedImage leftBorderPiece = backgroundType.getLeftBorder();
-    BufferedImage rightBorderPiece = backgroundType.getRightBorder();
-    float ammountOfPieces = calculateAmmountOfVerticalBorderPieces();
-    int lastPieceHeigh = (int) (
+    final BufferedImage leftBorderPiece = backgroundType.getLeftBorder();
+    final BufferedImage rightBorderPiece = backgroundType.getRightBorder();
+    final float ammountOfPieces = calculateAmmountOfVerticalBorderPieces();
+    final int lastPieceHeigh = (int) (
       leftBorderPiece.getHeight() * (ammountOfPieces - (int) ammountOfPieces)
     );
-    int totalAmmountOfPiecesToBeDrawn = (int) ammountOfPieces +
-    (lastPieceHeigh != 0.0f ? 1 : 0);
-    int borderPieceHeight = leftBorderPiece.getHeight();
+    final int totalAmmountOfPiecesToBeDrawn = (int) ammountOfPieces +
+    (lastPieceHeigh != 0 ? 1 : 0);
+    final int borderPieceHeight = leftBorderPiece.getHeight();
     int yPos = bounds.y + backgroundType.getLeftTopCorner().getHeight();
-    int leftXpos = bounds.x;
-    int rightXpos = bounds.x + bounds.width - leftBorderPiece.getWidth();
+    final int leftXpos = bounds.x;
+    final int rightXpos = bounds.x + bounds.width - leftBorderPiece.getWidth();
     for (
       int currentPiece = 0;
       currentPiece <= totalAmmountOfPiecesToBeDrawn - 1;
       currentPiece++
     ) {
       if (
-        currentPiece == totalAmmountOfPiecesToBeDrawn - 1 &&
-        lastPieceHeigh > 0.0f
+        currentPiece == totalAmmountOfPiecesToBeDrawn - 1 && lastPieceHeigh > 0
       ) {
         final BufferedImage leftPiece = leftBorderPiece.getSubimage(
           0,
