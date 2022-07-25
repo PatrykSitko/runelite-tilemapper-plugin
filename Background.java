@@ -356,8 +356,8 @@ public class Background implements RenderableEntity {
           leftBorderPiece,
           leftXpos,
           yPos,
-          useLastPieceHeight ? lastPieceHeigh : leftBorderPiece.getWidth(),
-          leftBorderPiece.getHeight()
+          leftBorderPiece.getWidth(),
+          useLastPieceHeight ? lastPieceHeigh : leftBorderPiece.getHeight()
         )
       );
       border.add(
@@ -365,8 +365,8 @@ public class Background implements RenderableEntity {
           rightBorderPiece,
           rightXpos,
           yPos,
-          useLastPieceHeight ? lastPieceHeigh : rightBorderPiece.getWidth(),
-          rightBorderPiece.getHeight()
+          rightBorderPiece.getWidth(),
+          useLastPieceHeight ? lastPieceHeigh : rightBorderPiece.getHeight()
         )
       );
       yPos += borderPieceHeight;
