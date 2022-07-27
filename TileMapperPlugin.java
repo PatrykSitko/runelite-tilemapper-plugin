@@ -8,13 +8,17 @@ import javax.inject.Inject;
 import lombok.Getter;
 import net.runelite.api.Client;
 import net.runelite.api.coords.LocalPoint;
+import net.runelite.api.events.CanvasSizeChanged;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.GameTick;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.input.MouseManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.tileMapper.events.ViewportChanged;
 import net.runelite.client.ui.overlay.OverlayManager;
 
 @PluginDescriptor(
@@ -56,6 +60,11 @@ public class TileMapperPlugin extends Plugin implements Runnable {
   @Inject
   private SaveTileDataToPathOverlay saveTileDataToPathOverlay;
 
+  @Inject
+  private volatile EventBus eventBus;
+
+  private volatile Viewport previousViewport = null;
+
   public Viewport getCurrentViewportType() {
     return Viewport.getCurrent(client);
   }
@@ -66,6 +75,16 @@ public class TileMapperPlugin extends Plugin implements Runnable {
 
   public void clearCollectedTileLocationsData() {
     collectedTileLocations = new HashMap<>();
+  }
+
+  private void notifyEventBusAboutEventualViewportChange() {
+    Viewport currentViewport = Viewport.getCurrent(client);
+    if (previousViewport != currentViewport) {
+      previousViewport = currentViewport;
+      ViewportChanged viewportChanged = new ViewportChanged();
+      viewportChanged.setViewport(currentViewport);
+      eventBus.post(viewportChanged);
+    }
   }
 
   @Override
@@ -91,6 +110,21 @@ public class TileMapperPlugin extends Plugin implements Runnable {
   @Provides
   TileMapperConfig provideConfig(ConfigManager configManager) {
     return configManager.getConfig(TileMapperConfig.class);
+  }
+
+  @Subscribe
+  public void onViewportChanged(ViewportChanged event) {
+    saveTileDataToPathOverlay.onViewportChanged(event);
+  }
+
+  @Subscribe
+  public void onGameTick(GameTick event) {
+    notifyEventBusAboutEventualViewportChange();
+  }
+
+  @Subscribe
+  public void onCanvasSizeChanged(CanvasSizeChanged event) {
+    saveTileDataToPathOverlay.onCanvasSizeChanged(event);
   }
 
   @Subscribe
