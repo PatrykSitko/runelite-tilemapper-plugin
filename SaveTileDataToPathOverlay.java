@@ -2,14 +2,13 @@ package net.runelite.client.plugins.tileMapper;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import javax.inject.Inject;
-import net.runelite.api.events.GameStateChanged;
-import net.runelite.client.eventbus.Subscribe;
+import net.runelite.api.Client;
+import net.runelite.api.events.CanvasSizeChanged;
 import net.runelite.client.input.MouseListener;
+import net.runelite.client.plugins.tileMapper.events.ViewportChanged;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -20,36 +19,60 @@ public class SaveTileDataToPathOverlay
   implements MouseListener, net.runelite.client.input.KeyListener {
 
   // private Viewport viewport;
-  private ArrayList<Point> mouseClicks;
-  private ArrayList<Integer> keyPresses;
-  private boolean enabledListeners = false;
   private final SaveDataButtonOverlay SAVE_DATA_BUTTON_OVERLAY;
+  private final TileMapperPlugin plugin;
   private final Background background = new Background(
-    607,
-    44,
-    491,
-    802,
+    -1,
+    -1,
+    488,
+    300,
     Background.Type.DARK
   );
 
   @Inject
   public SaveTileDataToPathOverlay(TileMapperPlugin tileMapperPlugin) {
+    this.plugin = tileMapperPlugin;
     this.SAVE_DATA_BUTTON_OVERLAY = tileMapperPlugin.getSaveDataButtonOverlay();
     setPosition(OverlayPosition.DYNAMIC);
     setLayer(OverlayLayer.ABOVE_WIDGETS);
     setPriority(OverlayPriority.MED);
   }
 
-  @Subscribe
-  public void onGameStateChanged(GameStateChanged event) {
-    switch (event.getGameState()) {
+  private void updateBackgroundLocation() {
+    final Viewport viewportInUse = plugin.getCurrentViewportType();
+    final Client client = plugin.getClient();
+    final int xNegativeOffset_case_defaut = 108;
+    final int yNegativeOffset_case_default = 79;
+    if (viewportInUse == null) {
+      return;
+    }
+    switch (viewportInUse) {
       default:
-        enabledListeners = false;
+        background.setLocation(
+          client.getCanvasWidth() /
+          2 -
+          background.getBounds().width /
+          2 -
+          xNegativeOffset_case_defaut,
+          client.getCanvasHeight() /
+          2 -
+          background.getBounds().height /
+          2 -
+          yNegativeOffset_case_default
+        );
         break;
-      case LOGGED_IN:
-        enabledListeners = true;
+      case FIXED_CLASSIC_LAYOUT:
+        background.setLocation(16, 24);
         break;
     }
+  }
+
+  public void onCanvasSizeChanged(CanvasSizeChanged event) {
+    updateBackgroundLocation();
+  }
+
+  public void onViewportChanged(ViewportChanged event) {
+    updateBackgroundLocation();
   }
 
   @Override
@@ -62,9 +85,6 @@ public class SaveTileDataToPathOverlay
 
   @Override
   public MouseEvent mouseClicked(MouseEvent mouseEvent) {
-    if (enabledListeners) {
-      mouseClicks.add(mouseEvent.getPoint());
-    }
     return mouseEvent;
   }
 
@@ -100,9 +120,6 @@ public class SaveTileDataToPathOverlay
 
   @Override
   public void keyTyped(KeyEvent e) {
-    if (enabledListeners) {
-      keyPresses.add(e.getKeyCode());
-    }
     e.consume();
   }
 
