@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tileMapper;
+package net.runelite.client.plugins.tileMapper.helpers;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,12 +15,12 @@ public enum Viewport {
 
   WidgetInfo viewport;
 
-  boolean isCurrent(Client client) {
+  public boolean isCurrent(Client client) {
     final Widget viewportWidget = client.getWidget(this.viewport);
     return viewportWidget != null && !viewportWidget.isHidden();
   }
 
-  static Viewport getCurrent(Client client) {
+  public static Viewport getCurrent(Client client) {
     if (Viewport.FIXED_CLASSIC_LAYOUT.isCurrent(client)) {
       return Viewport.FIXED_CLASSIC_LAYOUT;
     }
