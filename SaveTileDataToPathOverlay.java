@@ -71,6 +71,11 @@ public class SaveTileDataToPathOverlay
           }
         );
     }
+    background.setOnOutOfBoundsClickAction(
+      () -> {
+        SAVE_DATA_BUTTON_OVERLAY.clearDisplayPathPickerOverlayVar();
+      }
+    );
   }
 
   private void updateComponentLocation() {
@@ -122,7 +127,7 @@ public class SaveTileDataToPathOverlay
       background.getBounds().x +
       background.getBounds().width -
       7 -
-      exitButton.getDimension().width,
+      exitButton.getBounds().width,
       background.getBounds().y + 7
     );
   }
@@ -136,8 +141,8 @@ public class SaveTileDataToPathOverlay
   }
 
   public void onGameTick(GameTick event) {
-    exitButton.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
     background.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+    exitButton.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
   }
 
   @Override
@@ -150,18 +155,21 @@ public class SaveTileDataToPathOverlay
   @Override
   public MouseEvent mouseClicked(MouseEvent mouseEvent) {
     exitButton.mouseClicked(mouseEvent);
+    background.mouseClicked(mouseEvent);
     return mouseEvent;
   }
 
   @Override
   public MouseEvent mousePressed(MouseEvent mouseEvent) {
     exitButton.mousePressed(mouseEvent);
+    background.mousePressed(mouseEvent);
     return mouseEvent;
   }
 
   @Override
   public MouseEvent mouseReleased(MouseEvent mouseEvent) {
     exitButton.mouseReleased(mouseEvent);
+    background.mouseReleased(mouseEvent);
     return mouseEvent;
   }
 
@@ -183,6 +191,7 @@ public class SaveTileDataToPathOverlay
   @Override
   public MouseEvent mouseMoved(MouseEvent mouseEvent) {
     exitButton.mouseMoved(mouseEvent);
+    background.mouseMoved(mouseEvent);
     return mouseEvent;
   }
 
