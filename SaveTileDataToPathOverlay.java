@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.events.CanvasSizeChanged;
+import net.runelite.api.events.GameTick;
 import net.runelite.client.input.MouseListener;
 import net.runelite.client.plugins.tileMapper.SaveTileDataToPathOverlayComponents.Background;
 import net.runelite.client.plugins.tileMapper.SaveTileDataToPathOverlayComponents.Button;
@@ -114,6 +115,10 @@ public class SaveTileDataToPathOverlay
 
   public void onViewportChanged(ViewportChanged event) {
     updateComponentLocation();
+  }
+
+  public void onGameTick(GameTick event) {
+    exitButton.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
   }
 
   @Override
