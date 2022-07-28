@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.events.CanvasSizeChanged;
 import net.runelite.api.events.GameTick;
+import net.runelite.client.input.KeyListener;
 import net.runelite.client.input.MouseListener;
 import net.runelite.client.plugins.tileMapper.SaveTileDataToPathOverlayComponents.Background;
 import net.runelite.client.plugins.tileMapper.SaveTileDataToPathOverlayComponents.Button;
@@ -23,7 +24,7 @@ import net.runelite.client.ui.overlay.OverlayPriority;
 
 public class SaveTileDataToPathOverlay
   extends Overlay
-  implements MouseListener, net.runelite.client.input.KeyListener {
+  implements MouseListener, KeyListener {
 
   // private Viewport viewport;
   private final SaveDataButtonOverlay SAVE_DATA_BUTTON_OVERLAY;
