@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tileMapper;
+package net.runelite.client.plugins.tileMapper.SaveTileDataToPathOverlayComponents;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
