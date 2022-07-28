@@ -98,6 +98,10 @@ public class Background implements RenderableEntity, MouseListener {
     }
   }
 
+  public static interface OnOutOfBoundsClickAction {
+    public void perform();
+  }
+
   private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
 
   @Getter
@@ -114,6 +118,9 @@ public class Background implements RenderableEntity, MouseListener {
   private boolean visible;
 
   private boolean isMouseHovering;
+
+  @Setter
+  private Background.OnOutOfBoundsClickAction onOutOfBoundsClickAction;
 
   public Background(int x, int y, int width, int height, Type backgoundType) {
     bounds.setBounds(x, y, width, height);
@@ -384,12 +391,24 @@ public class Background implements RenderableEntity, MouseListener {
     }
   }
 
+  private boolean mouseInBounds(MouseEvent mouseEvent) {
+    final Point mouseLocation = mouseEvent.getPoint();
+    final boolean inBounds_horizontalLocation =
+      mouseLocation.x >= bounds.x && mouseLocation.x <= bounds.x + bounds.width;
+    final boolean inBounds_verticalLocation =
+      mouseLocation.y >= bounds.y &&
+      mouseLocation.y <= bounds.y + bounds.height;
+    return inBounds_horizontalLocation && inBounds_verticalLocation;
+  }
+
   @Override
   public MouseEvent mouseClicked(MouseEvent mouseEvent) {
     if (visible && isMouseHovering) {
       mouseEvent.consume();
     } else if (visible && !isMouseHovering) {
-      setVisible(false);
+      if (onOutOfBoundsClickAction != null) {
+        onOutOfBoundsClickAction.perform();
+      }
     }
     return mouseEvent;
   }
@@ -427,13 +446,19 @@ public class Background implements RenderableEntity, MouseListener {
 
   @Override
   public MouseEvent mouseMoved(MouseEvent mouseEvent) {
-    final Point mouseLocation = mouseEvent.getPoint();
-    final boolean inBounds_horizontalLocation =
-      mouseLocation.x >= bounds.x && mouseLocation.x <= bounds.x + bounds.width;
-    final boolean inBounds_verticalLocation =
-      mouseLocation.y >= bounds.y &&
-      mouseLocation.y <= bounds.y + bounds.height;
-    isMouseHovering = inBounds_horizontalLocation && inBounds_verticalLocation;
-    return mouseEvent;
+    isMouseHovering = mouseInBounds(mouseEvent);
+    return !isMouseHovering
+      ? mouseEvent
+      : new MouseEvent(
+        mouseEvent.getComponent(),
+        MouseEvent.MOUSE_MOVED,
+        mouseEvent.getWhen(),
+        mouseEvent.getModifiersEx(),
+        0,
+        0,
+        mouseEvent.getClickCount(),
+        mouseEvent.isPopupTrigger(),
+        mouseEvent.getButton()
+      );
   }
 }
