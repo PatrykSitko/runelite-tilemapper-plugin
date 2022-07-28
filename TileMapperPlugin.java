@@ -1,10 +1,13 @@
 package net.runelite.client.plugins.tileMapper;
 
-import com.google.inject.Provides;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+
 import javax.inject.Inject;
+
+import com.google.inject.Provides;
+
 import lombok.Getter;
 import net.runelite.api.Client;
 import net.runelite.api.coords.LocalPoint;
@@ -19,14 +22,11 @@ import net.runelite.client.input.MouseManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.tileMapper.events.ViewportChanged;
+import net.runelite.client.plugins.tileMapper.helpers.Viewport;
 import net.runelite.client.ui.overlay.OverlayManager;
 
-@PluginDescriptor(
-  name = "Tile Mapper",
-  description = "Maps tiles the player walked on and saved the values to a file while displaying marked tiles.",
-  tags = { "tiles" },
-  enabledByDefault = false
-)
+@PluginDescriptor(name = "Tile Mapper", description = "Maps tiles the player walked on and saved the values to a file while displaying marked tiles.", tags = {
+    "tiles" }, enabledByDefault = false)
 public class TileMapperPlugin extends Plugin implements Runnable {
 
   public static final String CONFIG_GROUP = "tilemapper";
@@ -136,13 +136,9 @@ public class TileMapperPlugin extends Plugin implements Runnable {
       case HOPPING:
       case LOGIN_SCREEN:
         collectTileLocations = false;
-        if (
-          tileLocationsCollectionThread != null &&
-          (
-            !tileLocationsCollectionThread.isInterrupted() ||
-            tileLocationsCollectionThread.isAlive()
-          )
-        ) {
+        if (tileLocationsCollectionThread != null &&
+            (!tileLocationsCollectionThread.isInterrupted() ||
+                tileLocationsCollectionThread.isAlive())) {
           tileLocationsCollectionThread.interrupt();
         }
         break;
@@ -163,18 +159,15 @@ public class TileMapperPlugin extends Plugin implements Runnable {
         continue;
       }
       LocalPoint localPlayerLocation = LocalPoint.fromWorld(
-        client,
-        client.getLocalPlayer().getWorldLocation()
-      );
+          client,
+          client.getLocalPlayer().getWorldLocation());
       if (collectedTileLocations.get(localPlayerLocation.getX()) == null) {
         collectedTileLocations.put(
-          localPlayerLocation.getX(),
-          new ArrayList<>(Arrays.asList(localPlayerLocation.getY()))
-        );
+            localPlayerLocation.getX(),
+            new ArrayList<>(Arrays.asList(localPlayerLocation.getY())));
       } else {
         ArrayList<Integer> Ylocations = collectedTileLocations.get(
-          localPlayerLocation.getX()
-        );
+            localPlayerLocation.getX());
         if (!Ylocations.contains(localPlayerLocation.getY())) {
           Ylocations.add(localPlayerLocation.getY());
           collectedTileLocations.put(localPlayerLocation.getX(), Ylocations);
