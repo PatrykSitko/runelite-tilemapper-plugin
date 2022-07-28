@@ -3,6 +3,7 @@ package net.runelite.client.plugins.tileMapper.SaveTileDataToPathOverlayComponen
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import lombok.Getter;
@@ -17,10 +18,7 @@ public class Button implements RenderableEntity, MouseListener {
   }
 
   @Getter
-  private Point location;
-
-  @Getter
-  private Dimension dimension;
+  private final Rectangle bounds = new Rectangle();
 
   private BufferedImage normal;
   private BufferedImage hover;
@@ -40,8 +38,7 @@ public class Button implements RenderableEntity, MouseListener {
     BufferedImage hover,
     Button.Action action
   ) {
-    this.location = new Point(x, y);
-    this.dimension = new Dimension(width, height);
+    this.bounds.setBounds(new Rectangle(x, y, width, height));
     this.normal = normal;
     this.hover = hover;
     this.action = action;
@@ -58,7 +55,7 @@ public class Button implements RenderableEntity, MouseListener {
   }
 
   public void setLocation(int x, int y) {
-    location.setLocation(x, y);
+    bounds.setLocation(x, y);
   }
 
   @Override
@@ -68,10 +65,10 @@ public class Button implements RenderableEntity, MouseListener {
     }
     graphics.drawImage(
       isMouseHovering ? hover : normal,
-      location.x,
-      location.y,
-      dimension.width,
-      dimension.height,
+      bounds.x,
+      bounds.y,
+      bounds.width,
+      bounds.height,
       null
     );
     return null;
@@ -123,11 +120,10 @@ public class Button implements RenderableEntity, MouseListener {
   public MouseEvent mouseMoved(MouseEvent mouseEvent) {
     final Point mouseLocation = mouseEvent.getPoint();
     final boolean inBounds_horizontalLocation =
-      mouseLocation.x >= location.x &&
-      mouseLocation.x <= location.x + dimension.width;
+      mouseLocation.x >= bounds.x && mouseLocation.x <= bounds.x + bounds.width;
     final boolean inBounds_verticalLocation =
-      mouseLocation.y >= location.y &&
-      mouseLocation.y <= location.y + dimension.height;
+      mouseLocation.y >= bounds.y &&
+      mouseLocation.y <= bounds.y + bounds.height;
     isMouseHovering = inBounds_horizontalLocation && inBounds_verticalLocation;
     return mouseEvent;
   }
