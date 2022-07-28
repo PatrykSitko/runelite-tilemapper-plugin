@@ -405,6 +405,20 @@ public class Background implements RenderableEntity, MouseListener {
   public MouseEvent mouseClicked(MouseEvent mouseEvent) {
     if (visible && isMouseHovering) {
       mouseEvent.consume();
+
+      final MouseEvent substituteMouseEvent = new MouseEvent(
+        mouseEvent.getComponent(),
+        MouseEvent.MOUSE_CLICKED,
+        mouseEvent.getWhen(),
+        mouseEvent.getModifiersEx(),
+        0,
+        0,
+        mouseEvent.getClickCount(),
+        mouseEvent.isPopupTrigger(),
+        mouseEvent.getButton()
+      );
+      substituteMouseEvent.consume();
+      return substituteMouseEvent;
     } else if (visible && !isMouseHovering) {
       if (onOutOfBoundsClickAction != null) {
         onOutOfBoundsClickAction.perform();
@@ -447,7 +461,7 @@ public class Background implements RenderableEntity, MouseListener {
   @Override
   public MouseEvent mouseMoved(MouseEvent mouseEvent) {
     isMouseHovering = mouseInBounds(mouseEvent);
-    return !isMouseHovering
+    return !isMouseHovering | !visible
       ? mouseEvent
       : new MouseEvent(
         mouseEvent.getComponent(),
