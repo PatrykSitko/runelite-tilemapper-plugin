@@ -6,14 +6,14 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import net.runelite.client.input.MouseListener;
+import net.runelite.client.plugins.tileMapper.helpers.ImageLoader;
 import net.runelite.client.ui.overlay.RenderableEntity;
 
 public class Background implements RenderableEntity, MouseListener {
@@ -24,12 +24,11 @@ public class Background implements RenderableEntity, MouseListener {
     private final int x, y, width, height;
 
     public PositionedImage(
-      BufferedImage image,
-      int x,
-      int y,
-      int width,
-      int height
-    ) {
+        BufferedImage image,
+        int x,
+        int y,
+        int width,
+        int height) {
       this.image = image.getSubimage(0, 0, width, height);
       this.x = x;
       this.y = y;
@@ -46,33 +45,31 @@ public class Background implements RenderableEntity, MouseListener {
   @Getter
   public static enum Type {
     LIGHT(
-      // background
-      loadImage("../backgrounds/background-light.png"),
-      // corners
-      loadImage("../borders/corners/left-top-corner-light.png"),
-      loadImage("../borders/corners/right-top-corner-light.png"),
-      loadImage("../borders/corners/left-bottom-corner-light.png"),
-      loadImage("../borders/corners/right-bottom-corner-light.png"),
-      // borders
-      loadImage("../borders/left-border-light.png"),
-      loadImage("../borders/top-border-light.png"),
-      loadImage("../borders/right-border-light.png"),
-      loadImage("../borders/bottom-border-light.png")
-    ),
+        // background
+        ImageLoader.loadImage("../backgrounds/background-light.png"),
+        // corners
+        ImageLoader.loadImage("../borders/corners/left-top-corner-light.png"),
+        ImageLoader.loadImage("../borders/corners/right-top-corner-light.png"),
+        ImageLoader.loadImage("../borders/corners/left-bottom-corner-light.png"),
+        ImageLoader.loadImage("../borders/corners/right-bottom-corner-light.png"),
+        // borders
+        ImageLoader.loadImage("../borders/left-border-light.png"),
+        ImageLoader.loadImage("../borders/top-border-light.png"),
+        ImageLoader.loadImage("../borders/right-border-light.png"),
+        ImageLoader.loadImage("../borders/bottom-border-light.png")),
     DARK(
-      // background
-      loadImage("../backgrounds/background-dark.png"),
-      // corners
-      loadImage("../borders/corners/left-top-corner-dark.png"),
-      loadImage("../borders/corners/right-top-corner-dark.png"),
-      loadImage("../borders/corners/left-bottom-corner-dark.png"),
-      loadImage("../borders/corners/right-bottom-corner-dark.png"),
-      // borders
-      loadImage("../borders/left-border-dark.png"),
-      loadImage("../borders/top-border-dark.png"),
-      loadImage("../borders/right-border-dark.png"),
-      loadImage("../borders/bottom-border-dark.png")
-    );
+        // background
+        ImageLoader.loadImage("../backgrounds/background-dark.png"),
+        // corners
+        ImageLoader.loadImage("../borders/corners/left-top-corner-dark.png"),
+        ImageLoader.loadImage("../borders/corners/right-top-corner-dark.png"),
+        ImageLoader.loadImage("../borders/corners/left-bottom-corner-dark.png"),
+        ImageLoader.loadImage("../borders/corners/right-bottom-corner-dark.png"),
+        // borders
+        ImageLoader.loadImage("../borders/left-border-dark.png"),
+        ImageLoader.loadImage("../borders/top-border-dark.png"),
+        ImageLoader.loadImage("../borders/right-border-dark.png"),
+        ImageLoader.loadImage("../borders/bottom-border-dark.png"));
 
     // background
     private BufferedImage background;
@@ -86,16 +83,6 @@ public class Background implements RenderableEntity, MouseListener {
     private BufferedImage topBorder;
     private BufferedImage rightBorder;
     private BufferedImage bottomBorder;
-
-    private static BufferedImage loadImage(String path) {
-      BufferedImage image = null;
-      try {
-        image = ImageIO.read(Type.class.getResource(path));
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      return image;
-    }
   }
 
   public static interface OnOutOfBoundsClickAction {
@@ -138,16 +125,14 @@ public class Background implements RenderableEntity, MouseListener {
   private float calculateAmmountOfHorizontalBackgroundPieces() {
     final int backgroundWidth = backgroundType.getBackground().getWidth();
     final int containerWidth = this.bounds.width;
-    final double ammountOfFittingPieces =
-      ((double) containerWidth) / ((double) backgroundWidth);
+    final double ammountOfFittingPieces = ((double) containerWidth) / ((double) backgroundWidth);
     return Float.parseFloat(DECIMAL_FORMAT.format(ammountOfFittingPieces));
   }
 
   private float calculateAmmountOfVerticalBackgroundPieces() {
     final int backgroundHeight = backgroundType.getBackground().getHeight();
     final int containerHeight = this.bounds.height;
-    final double ammountOfFittingPieces =
-      ((double) containerHeight) / ((double) backgroundHeight);
+    final double ammountOfFittingPieces = ((double) containerHeight) / ((double) backgroundHeight);
     return Float.parseFloat(DECIMAL_FORMAT.format(ammountOfFittingPieces));
   }
 
@@ -155,26 +140,22 @@ public class Background implements RenderableEntity, MouseListener {
     final int cornerPieceWidth = backgroundType.getLeftTopCorner().getWidth();
     final int borderPieceWidth = backgroundType.getTopBorder().getWidth();
     final int containerWidth = this.bounds.width;
-    final int borderWidthWithoutCorners =
-      containerWidth - (cornerPieceWidth * 2);
-    final double ammountOfBorderPiecesFittingInBorder =
-      ((double) borderWidthWithoutCorners) / ((double) borderPieceWidth);
+    final int borderWidthWithoutCorners = containerWidth - (cornerPieceWidth * 2);
+    final double ammountOfBorderPiecesFittingInBorder = ((double) borderWidthWithoutCorners)
+        / ((double) borderPieceWidth);
     return Float.parseFloat(
-      DECIMAL_FORMAT.format(ammountOfBorderPiecesFittingInBorder)
-    );
+        DECIMAL_FORMAT.format(ammountOfBorderPiecesFittingInBorder));
   }
 
   private float calculateAmmountOfVerticalBorderPieces() {
     final int cornerPieceHeight = backgroundType.getLeftTopCorner().getHeight();
     final int borderPieceHeight = backgroundType.getLeftBorder().getHeight();
     final int containerHeight = this.bounds.height;
-    final int borderHeightWithoutCorners =
-      containerHeight - (cornerPieceHeight * 2);
-    final double ammountOfBorderPiecesFittingInBorder =
-      ((double) borderHeightWithoutCorners) / ((double) borderPieceHeight);
+    final int borderHeightWithoutCorners = containerHeight - (cornerPieceHeight * 2);
+    final double ammountOfBorderPiecesFittingInBorder = ((double) borderHeightWithoutCorners)
+        / ((double) borderPieceHeight);
     return Float.parseFloat(
-      DECIMAL_FORMAT.format(ammountOfBorderPiecesFittingInBorder)
-    );
+        DECIMAL_FORMAT.format(ammountOfBorderPiecesFittingInBorder));
   }
 
   @Override
@@ -208,196 +189,154 @@ public class Background implements RenderableEntity, MouseListener {
     final float ammountOfRowsFloat = calculateAmmountOfVerticalBackgroundPieces();
     final int pieceWidth = backgroundImage.getWidth();
     final int pieceHeight = backgroundImage.getHeight();
-    final int lastPieceWidth = (int) (
-      backgroundImage.getWidth() *
-      (ammountOfColumnsFloat - (int) ammountOfColumnsFloat)
-    );
-    final int lastPieceHeight = (int) (
-      backgroundImage.getHeight() *
-      (ammountOfRowsFloat - (int) ammountOfRowsFloat)
-    );
+    final int lastPieceWidth = (int) (backgroundImage.getWidth() *
+        (ammountOfColumnsFloat - (int) ammountOfColumnsFloat));
+    final int lastPieceHeight = (int) (backgroundImage.getHeight() *
+        (ammountOfRowsFloat - (int) ammountOfRowsFloat));
     final int ammountOfColumns = (int) ammountOfColumnsFloat +
-    (lastPieceWidth != 0 ? 1 : 0);
+        (lastPieceWidth != 0 ? 1 : 0);
     final int ammountOfRows = (int) ammountOfRowsFloat +
-    (lastPieceHeight != 0 ? 1 : 0);
+        (lastPieceHeight != 0 ? 1 : 0);
     ArrayList<Thread> backgroundRowThreads = new ArrayList<>();
     for (int column = 0; column <= ammountOfColumns - 1; column++) {
       final int finalColumn = column;
       final Thread rowThread = new Thread(
-        () -> {
-          for (int row = 0; row <= ammountOfRows - 1; row++) {
-            final boolean isLastColumn = finalColumn == ammountOfColumns - 1;
-            final boolean isLastRow = row == ammountOfRows - 1;
-            final int x = startingXposition + finalColumn * pieceWidth;
-            final int y = startingYposition + row * pieceHeight;
-            final int width = isLastColumn && lastPieceWidth > 0
-              ? lastPieceWidth
-              : pieceWidth;
-            final int height = isLastRow && lastPieceHeight > 0
-              ? lastPieceHeight
-              : pieceHeight;
-            synchronized (Background.class) {
-              background.add(
-                new PositionedImage(backgroundImage, x, y, width, height)
-              );
+          () -> {
+            for (int row = 0; row <= ammountOfRows - 1; row++) {
+              final boolean isLastColumn = finalColumn == ammountOfColumns - 1;
+              final boolean isLastRow = row == ammountOfRows - 1;
+              final int x = startingXposition + finalColumn * pieceWidth;
+              final int y = startingYposition + row * pieceHeight;
+              final int width = isLastColumn && lastPieceWidth > 0
+                  ? lastPieceWidth
+                  : pieceWidth;
+              final int height = isLastRow && lastPieceHeight > 0
+                  ? lastPieceHeight
+                  : pieceHeight;
+              synchronized (Background.class) {
+                background.add(
+                    new PositionedImage(backgroundImage, x, y, width, height));
+              }
             }
-          }
-        }
-      );
+          });
       backgroundRowThreads.add(rowThread);
     }
     backgroundRowThreads.forEach(
-      rowThread -> {
-        rowThread.setDaemon(true);
-        rowThread.start();
-      }
-    );
+        rowThread -> {
+          rowThread.setDaemon(true);
+          rowThread.start();
+        });
   }
 
   private void populateBorderArrayWithCornerEntries(
-    ArrayList<PositionedImage> border
-  ) {
+      ArrayList<PositionedImage> border) {
     final BufferedImage leftTop = backgroundType.getLeftTopCorner();
     border.add(
-      new PositionedImage(
-        leftTop,
-        bounds.x,
-        bounds.y,
-        leftTop.getWidth(),
-        leftTop.getHeight()
-      )
-    );
+        new PositionedImage(
+            leftTop,
+            bounds.x,
+            bounds.y,
+            leftTop.getWidth(),
+            leftTop.getHeight()));
 
     final BufferedImage rightTop = backgroundType.getRightTopCorner();
     border.add(
-      new PositionedImage(
-        rightTop,
-        bounds.x + bounds.width - rightTop.getWidth(),
-        bounds.y,
-        rightTop.getWidth(),
-        rightTop.getHeight()
-      )
-    );
+        new PositionedImage(
+            rightTop,
+            bounds.x + bounds.width - rightTop.getWidth(),
+            bounds.y,
+            rightTop.getWidth(),
+            rightTop.getHeight()));
 
     final BufferedImage leftBottom = backgroundType.getLeftBottomCorner();
     border.add(
-      new PositionedImage(
-        leftBottom,
-        bounds.x,
-        bounds.y + bounds.height - leftBottom.getHeight(),
-        leftBottom.getWidth(),
-        leftBottom.getHeight()
-      )
-    );
+        new PositionedImage(
+            leftBottom,
+            bounds.x,
+            bounds.y + bounds.height - leftBottom.getHeight(),
+            leftBottom.getWidth(),
+            leftBottom.getHeight()));
 
     final BufferedImage rightBottom = backgroundType.getRightBottomCorner();
     border.add(
-      new PositionedImage(
-        rightBottom,
-        bounds.x + bounds.width - rightBottom.getWidth(),
-        bounds.y + bounds.height - rightBottom.getHeight(),
-        rightBottom.getWidth(),
-        rightBottom.getHeight()
-      )
-    );
+        new PositionedImage(
+            rightBottom,
+            bounds.x + bounds.width - rightBottom.getWidth(),
+            bounds.y + bounds.height - rightBottom.getHeight(),
+            rightBottom.getWidth(),
+            rightBottom.getHeight()));
   }
 
   private void populateBorderArrayWithHorizontalEntries(
-    ArrayList<PositionedImage> border
-  ) {
+      ArrayList<PositionedImage> border) {
     final BufferedImage topBorderPiece = backgroundType.getTopBorder();
     final BufferedImage bottomBorderPiece = backgroundType.getBottomBorder();
     final float ammountOfPieces = calculateAmmountOfHorizontalBorderPieces();
-    final int lastPieceWidth = (int) (
-      topBorderPiece.getWidth() * (ammountOfPieces - (int) ammountOfPieces)
-    );
+    final int lastPieceWidth = (int) (topBorderPiece.getWidth() * (ammountOfPieces - (int) ammountOfPieces));
     final int totalAmmountOfPiecesToBeDrawn = (int) ammountOfPieces +
-    (lastPieceWidth != 0 ? 1 : 0);
+        (lastPieceWidth != 0 ? 1 : 0);
     final int borderPieceWidth = topBorderPiece.getWidth();
     int xPos = bounds.x + backgroundType.getLeftTopCorner().getWidth();
     final int topYpos = bounds.y;
-    final int bottomYpos =
-      bounds.y + bounds.height - backgroundType.getBottomBorder().getHeight();
-    for (
-      int currentPiece = 0;
-      currentPiece <= totalAmmountOfPiecesToBeDrawn - 1;
-      currentPiece++
-    ) {
-      final boolean useLastPieceWidth =
-        currentPiece == totalAmmountOfPiecesToBeDrawn - 1 && lastPieceWidth > 0;
+    final int bottomYpos = bounds.y + bounds.height - backgroundType.getBottomBorder().getHeight();
+    for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawn - 1; currentPiece++) {
+      final boolean useLastPieceWidth = currentPiece == totalAmmountOfPiecesToBeDrawn - 1 && lastPieceWidth > 0;
       border.add(
-        new PositionedImage(
-          topBorderPiece,
-          xPos,
-          topYpos,
-          useLastPieceWidth ? lastPieceWidth : topBorderPiece.getWidth(),
-          topBorderPiece.getHeight()
-        )
-      );
+          new PositionedImage(
+              topBorderPiece,
+              xPos,
+              topYpos,
+              useLastPieceWidth ? lastPieceWidth : topBorderPiece.getWidth(),
+              topBorderPiece.getHeight()));
       border.add(
-        new PositionedImage(
-          bottomBorderPiece,
-          xPos,
-          bottomYpos,
-          useLastPieceWidth ? lastPieceWidth : bottomBorderPiece.getWidth(),
-          bottomBorderPiece.getHeight()
-        )
-      );
+          new PositionedImage(
+              bottomBorderPiece,
+              xPos,
+              bottomYpos,
+              useLastPieceWidth ? lastPieceWidth : bottomBorderPiece.getWidth(),
+              bottomBorderPiece.getHeight()));
       xPos += borderPieceWidth;
     }
   }
 
   private void populateBorderArrayWithVerticalEntries(
-    ArrayList<PositionedImage> border
-  ) {
+      ArrayList<PositionedImage> border) {
     final BufferedImage leftBorderPiece = backgroundType.getLeftBorder();
     final BufferedImage rightBorderPiece = backgroundType.getRightBorder();
     final float ammountOfPieces = calculateAmmountOfVerticalBorderPieces();
-    final int lastPieceHeigh = (int) (
-      leftBorderPiece.getHeight() * (ammountOfPieces - (int) ammountOfPieces)
-    );
+    final int lastPieceHeigh = (int) (leftBorderPiece.getHeight() * (ammountOfPieces - (int) ammountOfPieces));
     final int totalAmmountOfPiecesToBeDrawn = (int) ammountOfPieces +
-    (lastPieceHeigh != 0 ? 1 : 0);
+        (lastPieceHeigh != 0 ? 1 : 0);
     final int borderPieceHeight = leftBorderPiece.getHeight();
     int yPos = bounds.y + backgroundType.getLeftTopCorner().getHeight();
     final int leftXpos = bounds.x;
     final int rightXpos = bounds.x + bounds.width - leftBorderPiece.getWidth();
-    for (
-      int currentPiece = 0;
-      currentPiece <= totalAmmountOfPiecesToBeDrawn - 1;
-      currentPiece++
-    ) {
-      final boolean useLastPieceHeight =
-        currentPiece == totalAmmountOfPiecesToBeDrawn - 1 && lastPieceHeigh > 0;
+    for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawn - 1; currentPiece++) {
+      final boolean useLastPieceHeight = currentPiece == totalAmmountOfPiecesToBeDrawn - 1 && lastPieceHeigh > 0;
       border.add(
-        new PositionedImage(
-          leftBorderPiece,
-          leftXpos,
-          yPos,
-          leftBorderPiece.getWidth(),
-          useLastPieceHeight ? lastPieceHeigh : leftBorderPiece.getHeight()
-        )
-      );
+          new PositionedImage(
+              leftBorderPiece,
+              leftXpos,
+              yPos,
+              leftBorderPiece.getWidth(),
+              useLastPieceHeight ? lastPieceHeigh : leftBorderPiece.getHeight()));
       border.add(
-        new PositionedImage(
-          rightBorderPiece,
-          rightXpos,
-          yPos,
-          rightBorderPiece.getWidth(),
-          useLastPieceHeight ? lastPieceHeigh : rightBorderPiece.getHeight()
-        )
-      );
+          new PositionedImage(
+              rightBorderPiece,
+              rightXpos,
+              yPos,
+              rightBorderPiece.getWidth(),
+              useLastPieceHeight ? lastPieceHeigh : rightBorderPiece.getHeight()));
       yPos += borderPieceHeight;
     }
   }
 
   private boolean mouseInBounds(MouseEvent mouseEvent) {
     final Point mouseLocation = mouseEvent.getPoint();
-    final boolean inBounds_horizontalLocation =
-      mouseLocation.x >= bounds.x && mouseLocation.x <= bounds.x + bounds.width;
-    final boolean inBounds_verticalLocation =
-      mouseLocation.y >= bounds.y &&
-      mouseLocation.y <= bounds.y + bounds.height;
+    final boolean inBounds_horizontalLocation = mouseLocation.x >= bounds.x
+        && mouseLocation.x <= bounds.x + bounds.width;
+    final boolean inBounds_verticalLocation = mouseLocation.y >= bounds.y &&
+        mouseLocation.y <= bounds.y + bounds.height;
     return inBounds_horizontalLocation && inBounds_verticalLocation;
   }
 
@@ -452,16 +391,15 @@ public class Background implements RenderableEntity, MouseListener {
     isMouseHovering = mouseInBounds(mouseEvent);
 
     final MouseEvent substituteMouseEvent = new MouseEvent(
-      mouseEvent.getComponent(),
-      MouseEvent.MOUSE_MOVED,
-      mouseEvent.getWhen(),
-      mouseEvent.getModifiersEx(),
-      0,
-      0,
-      mouseEvent.getClickCount(),
-      mouseEvent.isPopupTrigger(),
-      mouseEvent.getButton()
-    );
+        mouseEvent.getComponent(),
+        MouseEvent.MOUSE_MOVED,
+        mouseEvent.getWhen(),
+        mouseEvent.getModifiersEx(),
+        0,
+        0,
+        mouseEvent.getClickCount(),
+        mouseEvent.isPopupTrigger(),
+        mouseEvent.getButton());
     return !isMouseHovering | !visible ? mouseEvent : substituteMouseEvent;
   }
 }
