@@ -11,6 +11,8 @@ import javax.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.events.CanvasSizeChanged;
 import net.runelite.client.input.MouseListener;
+import net.runelite.client.plugins.tileMapper.SaveTileDataToPathOverlayComponents.Background;
+import net.runelite.client.plugins.tileMapper.SaveTileDataToPathOverlayComponents.Button;
 import net.runelite.client.plugins.tileMapper.events.ViewportChanged;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
@@ -70,7 +72,7 @@ public class SaveTileDataToPathOverlay
     }
   }
 
-  private void updateBackgroundLocation() {
+  private void updateComponentLocation() {
     final Viewport viewportInUse = plugin.getCurrentViewportType();
     final Client client = plugin.getClient();
     final int xNegativeOffset_case_defaut = 108;
@@ -97,21 +99,28 @@ public class SaveTileDataToPathOverlay
         background.setLocation(16, 24);
         break;
     }
+    exitButton.setLocation(
+      background.getBounds().x +
+      background.getBounds().width -
+      7 -
+      exitButton.getDimension().width,
+      background.getBounds().y + 7
+    );
   }
 
   public void onCanvasSizeChanged(CanvasSizeChanged event) {
-    updateBackgroundLocation();
+    updateComponentLocation();
   }
 
   public void onViewportChanged(ViewportChanged event) {
-    updateBackgroundLocation();
+    updateComponentLocation();
   }
 
   @Override
   public Dimension render(Graphics2D graphics) {
     if (SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay()) {
-      exitButton.render(graphics);
       background.render(graphics);
+      exitButton.render(graphics);
     }
     return null;
   }
