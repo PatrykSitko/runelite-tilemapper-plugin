@@ -14,32 +14,10 @@ import lombok.Getter;
 import lombok.Setter;
 import net.runelite.client.input.MouseListener;
 import net.runelite.client.plugins.tileMapper.helpers.ImageLoader;
+import net.runelite.client.plugins.tileMapper.helpers.PositionedImage;
 import net.runelite.client.ui.overlay.RenderableEntity;
 
 public class Background implements RenderableEntity, MouseListener {
-
-  public static class PositionedImage {
-
-    private final BufferedImage image;
-    private final int x, y, width, height;
-
-    public PositionedImage(
-        BufferedImage image,
-        int x,
-        int y,
-        int width,
-        int height) {
-      this.image = image.getSubimage(0, 0, width, height);
-      this.x = x;
-      this.y = y;
-      this.width = width;
-      this.height = height;
-    }
-
-    public void draw(Graphics2D graphics) {
-      graphics.drawImage(image, x, y, width, height, null);
-    }
-  }
 
   @AllArgsConstructor
   @Getter
