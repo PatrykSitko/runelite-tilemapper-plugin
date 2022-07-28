@@ -76,26 +76,43 @@ public class SaveTileDataToPathOverlay
   private void updateComponentLocation() {
     final Viewport viewportInUse = plugin.getCurrentViewportType();
     final Client client = plugin.getClient();
-    final int xNegativeOffset_case_defaut = 108;
-    final int yNegativeOffset_case_default = 79;
+    final int xNegativeOffset_case_resizable_modern = 108;
+    final int yNegativeOffset_case_resizable_modern = 79;
+    final int xNegativeOffset_case_resizable_classic = 125;
+    final int yNegativeOffset_case_resizable_classic = 79;
     if (viewportInUse == null) {
       return;
     }
     switch (viewportInUse) {
       default:
+        break;
+      case RESIZABLE_MODERN_LAYOUT:
         background.setLocation(
           client.getCanvasWidth() /
           2 -
           background.getBounds().width /
           2 -
-          xNegativeOffset_case_defaut,
+          xNegativeOffset_case_resizable_modern,
           client.getCanvasHeight() /
           2 -
           background.getBounds().height /
           2 -
-          yNegativeOffset_case_default
+          yNegativeOffset_case_resizable_modern
         );
         break;
+      case RESIZABLE_CLASSIC_LAYOUT:
+        background.setLocation(
+          client.getCanvasWidth() /
+          2 -
+          background.getBounds().width /
+          2 -
+          xNegativeOffset_case_resizable_classic,
+          client.getCanvasHeight() /
+          2 -
+          background.getBounds().height /
+          2 -
+          yNegativeOffset_case_resizable_classic
+        );
       case FIXED_CLASSIC_LAYOUT:
         background.setLocation(16, 24);
         break;
