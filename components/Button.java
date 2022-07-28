@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tileMapper.SaveTileDataToPathOverlayComponents;
+package net.runelite.client.plugins.tileMapper.components;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+
 import lombok.Getter;
 import lombok.Setter;
 import net.runelite.client.input.MouseListener;
@@ -30,14 +31,13 @@ public class Button implements RenderableEntity, MouseListener {
   private boolean visible;
 
   public Button(
-    int x,
-    int y,
-    int width,
-    int height,
-    BufferedImage normal,
-    BufferedImage hover,
-    Button.Action action
-  ) {
+      int x,
+      int y,
+      int width,
+      int height,
+      BufferedImage normal,
+      BufferedImage hover,
+      Button.Action action) {
     this.bounds.setBounds(new Rectangle(x, y, width, height));
     this.normal = normal;
     this.hover = hover;
@@ -45,12 +45,11 @@ public class Button implements RenderableEntity, MouseListener {
   }
 
   public Button(
-    int x,
-    int y,
-    BufferedImage normal,
-    BufferedImage hover,
-    Button.Action action
-  ) {
+      int x,
+      int y,
+      BufferedImage normal,
+      BufferedImage hover,
+      Button.Action action) {
     this(x, y, normal.getWidth(), normal.getHeight(), normal, hover, action);
   }
 
@@ -64,21 +63,18 @@ public class Button implements RenderableEntity, MouseListener {
       return null;
     }
     graphics.drawImage(
-      isMouseHovering ? hover : normal,
-      bounds.x,
-      bounds.y,
-      bounds.width,
-      bounds.height,
-      null
-    );
+        isMouseHovering ? hover : normal,
+        bounds.x,
+        bounds.y,
+        bounds.width,
+        bounds.height,
+        null);
     return null;
   }
 
   @Override
   public MouseEvent mouseClicked(MouseEvent mouseEvent) {
-    if (
-      visible && isMouseHovering && mouseEvent.getButton() == MouseEvent.BUTTON1
-    ) {
+    if (visible && isMouseHovering && mouseEvent.getButton() == MouseEvent.BUTTON1) {
       this.action.onClick();
       mouseEvent.consume();
     }
@@ -119,11 +115,10 @@ public class Button implements RenderableEntity, MouseListener {
   @Override
   public MouseEvent mouseMoved(MouseEvent mouseEvent) {
     final Point mouseLocation = mouseEvent.getPoint();
-    final boolean inBounds_horizontalLocation =
-      mouseLocation.x >= bounds.x && mouseLocation.x <= bounds.x + bounds.width;
-    final boolean inBounds_verticalLocation =
-      mouseLocation.y >= bounds.y &&
-      mouseLocation.y <= bounds.y + bounds.height;
+    final boolean inBounds_horizontalLocation = mouseLocation.x >= bounds.x
+        && mouseLocation.x <= bounds.x + bounds.width;
+    final boolean inBounds_verticalLocation = mouseLocation.y >= bounds.y &&
+        mouseLocation.y <= bounds.y + bounds.height;
     isMouseHovering = inBounds_horizontalLocation && inBounds_verticalLocation;
     return mouseEvent;
   }
