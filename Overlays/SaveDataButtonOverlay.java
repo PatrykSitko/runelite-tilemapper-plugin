@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tileMapper;
+package net.runelite.client.plugins.tileMapper.Overlays;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -14,6 +14,7 @@ import net.runelite.api.Client;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.input.MouseListener;
+import net.runelite.client.plugins.tileMapper.TileMapperPlugin;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;

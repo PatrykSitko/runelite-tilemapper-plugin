@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tileMapper;
+package net.runelite.client.plugins.tileMapper.Overlays;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -16,6 +16,7 @@ import net.runelite.api.events.CanvasSizeChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.input.KeyListener;
 import net.runelite.client.input.MouseListener;
+import net.runelite.client.plugins.tileMapper.TileMapperPlugin;
 import net.runelite.client.plugins.tileMapper.components.Background;
 import net.runelite.client.plugins.tileMapper.components.Button;
 import net.runelite.client.plugins.tileMapper.events.ViewportChanged;
