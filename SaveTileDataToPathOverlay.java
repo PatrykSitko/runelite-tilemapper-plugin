@@ -137,14 +137,13 @@ public class SaveTileDataToPathOverlay
 
   public void onGameTick(GameTick event) {
     exitButton.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+    background.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
   }
 
   @Override
   public Dimension render(Graphics2D graphics) {
-    if (SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay()) {
-      background.render(graphics);
-      exitButton.render(graphics);
-    }
+    background.render(graphics);
+    exitButton.render(graphics);
     return null;
   }
 
