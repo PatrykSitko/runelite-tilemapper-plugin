@@ -120,6 +120,7 @@ public class TileMapperPlugin extends Plugin implements Runnable {
   @Subscribe
   public void onGameTick(GameTick event) {
     notifyEventBusAboutEventualViewportChange();
+    saveTileDataToPathOverlay.onGameTick(event);
   }
 
   @Subscribe
