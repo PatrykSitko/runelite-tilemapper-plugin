@@ -214,7 +214,13 @@ public class SaveTileDataToPathOverlay
 
   @Override
   public MouseEvent mouseDragged(MouseEvent mouseEvent) {
-    return mouseEvent;
+    return compareAndReturnDivergent(
+      mouseEvent,
+      new MouseEvent[] {
+        exitButton.mouseDragged(mouseEvent),
+        background.mouseDragged(mouseEvent),
+      }
+    );
   }
 
   @Override
