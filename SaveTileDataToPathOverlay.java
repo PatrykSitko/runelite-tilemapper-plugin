@@ -113,6 +113,7 @@ public class SaveTileDataToPathOverlay
           2 -
           yNegativeOffset_case_resizable_classic
         );
+        break;
       case FIXED_CLASSIC_LAYOUT:
         background.setLocation(16, 24);
         break;
