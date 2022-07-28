@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import net.runelite.api.Client;
@@ -152,11 +153,32 @@ public class SaveTileDataToPathOverlay
     return null;
   }
 
+  private MouseEvent compareAndReturnDivergent(
+    MouseEvent defaultMouseEvent,
+    MouseEvent[] potentiallyModifiedMouseEvents
+  ) {
+    MouseEvent[] modifiedMouseEvents = Stream
+      .of(potentiallyModifiedMouseEvents)
+      .filter(
+        potentiallyModifiedMouseEvent ->
+          !potentiallyModifiedMouseEvent.equals(defaultMouseEvent)
+      )
+      .toArray(MouseEvent[]::new);
+    return modifiedMouseEvents.length > 0
+      ? modifiedMouseEvents[modifiedMouseEvents.length - 1]
+      : defaultMouseEvent;
+  }
+
   @Override
   public MouseEvent mouseClicked(MouseEvent mouseEvent) {
-    exitButton.mouseClicked(mouseEvent);
-    background.mouseClicked(mouseEvent);
-    return mouseEvent;
+    final MouseEvent exitButtonMouseEvent = exitButton.mouseClicked(mouseEvent);
+    final MouseEvent backgroundButtonMouseEvent = background.mouseClicked(
+      mouseEvent
+    );
+    return compareAndReturnDivergent(
+      mouseEvent,
+      new MouseEvent[] { exitButtonMouseEvent, backgroundButtonMouseEvent }
+    );
   }
 
   @Override
@@ -190,20 +212,14 @@ public class SaveTileDataToPathOverlay
 
   @Override
   public MouseEvent mouseMoved(MouseEvent mouseEvent) {
-    MouseEvent returnedMouseEvent = mouseEvent;
     final MouseEvent exitButtonMouseEvent = exitButton.mouseMoved(mouseEvent);
-    returnedMouseEvent =
-      !exitButtonMouseEvent.equals(mouseEvent)
-        ? exitButtonMouseEvent
-        : mouseEvent;
     final MouseEvent backgroundButtonMouseEvent = background.mouseMoved(
       mouseEvent
     );
-    returnedMouseEvent =
-      !backgroundButtonMouseEvent.equals(mouseEvent)
-        ? backgroundButtonMouseEvent
-        : mouseEvent;
-    return returnedMouseEvent;
+    return compareAndReturnDivergent(
+      mouseEvent,
+      new MouseEvent[] { exitButtonMouseEvent, backgroundButtonMouseEvent }
+    );
   }
 
   @Override
