@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -12,9 +13,10 @@ import javax.imageio.ImageIO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import net.runelite.client.input.MouseListener;
 import net.runelite.client.ui.overlay.RenderableEntity;
 
-public class Background implements RenderableEntity {
+public class Background implements RenderableEntity, MouseListener {
 
   public static class PositionedImage {
 
@@ -111,6 +113,8 @@ public class Background implements RenderableEntity {
   @Setter
   private boolean visible;
 
+  private boolean isMouseHovering;
+
   public Background(int x, int y, int width, int height, Type backgoundType) {
     bounds.setBounds(x, y, width, height);
     this.backgroundType = backgoundType;
@@ -172,7 +176,6 @@ public class Background implements RenderableEntity {
       return null;
     }
     drawBackgroundWidthBorder(graphics);
-    // TODO Auto-generated method stub
     return null;
   }
 
@@ -379,5 +382,58 @@ public class Background implements RenderableEntity {
       );
       yPos += borderPieceHeight;
     }
+  }
+
+  @Override
+  public MouseEvent mouseClicked(MouseEvent mouseEvent) {
+    if (visible && isMouseHovering) {
+      mouseEvent.consume();
+    } else if (visible && !isMouseHovering) {
+      setVisible(false);
+    }
+    return mouseEvent;
+  }
+
+  @Override
+  public MouseEvent mousePressed(MouseEvent mouseEvent) {
+    if (visible && isMouseHovering) {
+      mouseEvent.consume();
+    }
+    return mouseEvent;
+  }
+
+  @Override
+  public MouseEvent mouseReleased(MouseEvent mouseEvent) {
+    if (visible && isMouseHovering) {
+      mouseEvent.consume();
+    }
+    return mouseEvent;
+  }
+
+  @Override
+  public MouseEvent mouseEntered(MouseEvent mouseEvent) {
+    return mouseEvent;
+  }
+
+  @Override
+  public MouseEvent mouseExited(MouseEvent mouseEvent) {
+    return mouseEvent;
+  }
+
+  @Override
+  public MouseEvent mouseDragged(MouseEvent mouseEvent) {
+    return mouseEvent;
+  }
+
+  @Override
+  public MouseEvent mouseMoved(MouseEvent mouseEvent) {
+    final Point mouseLocation = mouseEvent.getPoint();
+    final boolean inBounds_horizontalLocation =
+      mouseLocation.x >= bounds.x && mouseLocation.x <= bounds.x + bounds.width;
+    final boolean inBounds_verticalLocation =
+      mouseLocation.y >= bounds.y &&
+      mouseLocation.y <= bounds.y + bounds.height;
+    isMouseHovering = inBounds_horizontalLocation && inBounds_verticalLocation;
+    return mouseEvent;
   }
 }
