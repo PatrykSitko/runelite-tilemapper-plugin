@@ -190,9 +190,20 @@ public class SaveTileDataToPathOverlay
 
   @Override
   public MouseEvent mouseMoved(MouseEvent mouseEvent) {
-    exitButton.mouseMoved(mouseEvent);
-    background.mouseMoved(mouseEvent);
-    return mouseEvent;
+    MouseEvent returnedMouseEvent = mouseEvent;
+    final MouseEvent exitButtonMouseEvent = exitButton.mouseMoved(mouseEvent);
+    returnedMouseEvent =
+      !exitButtonMouseEvent.equals(mouseEvent)
+        ? exitButtonMouseEvent
+        : mouseEvent;
+    final MouseEvent backgroundButtonMouseEvent = background.mouseMoved(
+      mouseEvent
+    );
+    returnedMouseEvent =
+      !backgroundButtonMouseEvent.equals(mouseEvent)
+        ? backgroundButtonMouseEvent
+        : mouseEvent;
+    return returnedMouseEvent;
   }
 
   @Override
