@@ -28,7 +28,7 @@ public class SaveTileDataToPathOverlay
 
   // private Viewport viewport;
   private final SaveDataButtonOverlay SAVE_DATA_BUTTON_OVERLAY;
-  private final TileMapperPlugin plugin;
+  private final TileMapperPlugin tileMapperPlugin;
   private final Background background = new Background(
     -1,
     -1,
@@ -40,7 +40,7 @@ public class SaveTileDataToPathOverlay
 
   @Inject
   public SaveTileDataToPathOverlay(TileMapperPlugin tileMapperPlugin) {
-    this.plugin = tileMapperPlugin;
+    this.tileMapperPlugin = tileMapperPlugin;
     this.SAVE_DATA_BUTTON_OVERLAY = tileMapperPlugin.getSaveDataButtonOverlay();
     setPosition(OverlayPosition.DYNAMIC);
     setLayer(OverlayLayer.ABOVE_WIDGETS);
@@ -81,8 +81,8 @@ public class SaveTileDataToPathOverlay
   }
 
   private void updateComponentLocation() {
-    final Viewport viewportInUse = plugin.getCurrentViewportType();
-    final Client client = plugin.getClient();
+    final Viewport viewportInUse = tileMapperPlugin.getCurrentViewportType();
+    final Client client = tileMapperPlugin.getClient();
     final int xNegativeOffset_case_resizable_modern = 108;
     final int yNegativeOffset_case_resizable_modern = 79;
     final int xNegativeOffset_case_resizable_classic = 125;
