@@ -44,31 +44,31 @@ public class Background implements RenderableEntity {
   public static enum Type {
     LIGHT(
       // background
-      loadImage("backgrounds/background-light.png"),
+      loadImage("../backgrounds/background-light.png"),
       // corners
-      loadImage("borders/corners/left-top-corner-light.png"),
-      loadImage("borders/corners/right-top-corner-light.png"),
-      loadImage("borders/corners/left-bottom-corner-light.png"),
-      loadImage("borders/corners/right-bottom-corner-light.png"),
+      loadImage("../borders/corners/left-top-corner-light.png"),
+      loadImage("../borders/corners/right-top-corner-light.png"),
+      loadImage("../borders/corners/left-bottom-corner-light.png"),
+      loadImage("../borders/corners/right-bottom-corner-light.png"),
       // borders
-      loadImage("borders/left-border-light.png"),
-      loadImage("borders/top-border-light.png"),
-      loadImage("borders/right-border-light.png"),
-      loadImage("borders/bottom-border-light.png")
+      loadImage("../borders/left-border-light.png"),
+      loadImage("../borders/top-border-light.png"),
+      loadImage("../borders/right-border-light.png"),
+      loadImage("../borders/bottom-border-light.png")
     ),
     DARK(
       // background
-      loadImage("backgrounds/background-dark.png"),
+      loadImage("../backgrounds/background-dark.png"),
       // corners
-      loadImage("borders/corners/left-top-corner-dark.png"),
-      loadImage("borders/corners/right-top-corner-dark.png"),
-      loadImage("borders/corners/left-bottom-corner-dark.png"),
-      loadImage("borders/corners/right-bottom-corner-dark.png"),
+      loadImage("../borders/corners/left-top-corner-dark.png"),
+      loadImage("../borders/corners/right-top-corner-dark.png"),
+      loadImage("../borders/corners/left-bottom-corner-dark.png"),
+      loadImage("../borders/corners/right-bottom-corner-dark.png"),
       // borders
-      loadImage("borders/left-border-dark.png"),
-      loadImage("borders/top-border-dark.png"),
-      loadImage("borders/right-border-dark.png"),
-      loadImage("borders/bottom-border-dark.png")
+      loadImage("../borders/left-border-dark.png"),
+      loadImage("../borders/top-border-dark.png"),
+      loadImage("../borders/right-border-dark.png"),
+      loadImage("../borders/bottom-border-dark.png")
     );
 
     // background
