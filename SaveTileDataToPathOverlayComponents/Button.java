@@ -63,6 +63,9 @@ public class Button implements RenderableEntity, MouseListener {
 
   @Override
   public Dimension render(Graphics2D graphics) {
+    if (!visible) {
+      return null;
+    }
     graphics.drawImage(
       isMouseHovering ? hover : normal,
       location.x,

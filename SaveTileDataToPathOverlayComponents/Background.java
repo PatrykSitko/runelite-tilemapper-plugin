@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import net.runelite.client.ui.overlay.RenderableEntity;
 
 public class Background implements RenderableEntity {
@@ -106,6 +107,10 @@ public class Background implements RenderableEntity {
   private volatile ArrayList<PositionedImage> background = new ArrayList<>();
   private ArrayList<PositionedImage> border = new ArrayList<>();
 
+  @Getter
+  @Setter
+  private boolean visible;
+
   public Background(int x, int y, int width, int height, Type backgoundType) {
     bounds.setBounds(x, y, width, height);
     this.backgroundType = backgoundType;
@@ -163,12 +168,15 @@ public class Background implements RenderableEntity {
 
   @Override
   public Dimension render(Graphics2D graphics) {
-    drawBackgroundBorder(graphics);
+    if (!visible) {
+      return null;
+    }
+    drawBackgroundWidthBorder(graphics);
     // TODO Auto-generated method stub
     return null;
   }
 
-  private void drawBackgroundBorder(Graphics2D graphics) {
+  private void drawBackgroundWidthBorder(Graphics2D graphics) {
     if (!bounds.equals(previousBounds)) {
       previousBounds = new Rectangle(bounds);
       background = new ArrayList<>();
