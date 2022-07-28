@@ -171,28 +171,35 @@ public class SaveTileDataToPathOverlay
 
   @Override
   public MouseEvent mouseClicked(MouseEvent mouseEvent) {
-    final MouseEvent exitButtonMouseEvent = exitButton.mouseClicked(mouseEvent);
-    final MouseEvent backgroundButtonMouseEvent = background.mouseClicked(
-      mouseEvent
-    );
     return compareAndReturnDivergent(
       mouseEvent,
-      new MouseEvent[] { exitButtonMouseEvent, backgroundButtonMouseEvent }
+      new MouseEvent[] {
+        exitButton.mouseClicked(mouseEvent),
+        background.mouseClicked(mouseEvent),
+      }
     );
   }
 
   @Override
   public MouseEvent mousePressed(MouseEvent mouseEvent) {
-    exitButton.mousePressed(mouseEvent);
-    background.mousePressed(mouseEvent);
-    return mouseEvent;
+    return compareAndReturnDivergent(
+      mouseEvent,
+      new MouseEvent[] {
+        exitButton.mousePressed(mouseEvent),
+        background.mousePressed(mouseEvent),
+      }
+    );
   }
 
   @Override
   public MouseEvent mouseReleased(MouseEvent mouseEvent) {
-    exitButton.mouseReleased(mouseEvent);
-    background.mouseReleased(mouseEvent);
-    return mouseEvent;
+    return compareAndReturnDivergent(
+      mouseEvent,
+      new MouseEvent[] {
+        exitButton.mouseReleased(mouseEvent),
+        background.mouseReleased(mouseEvent),
+      }
+    );
   }
 
   @Override
@@ -212,13 +219,12 @@ public class SaveTileDataToPathOverlay
 
   @Override
   public MouseEvent mouseMoved(MouseEvent mouseEvent) {
-    final MouseEvent exitButtonMouseEvent = exitButton.mouseMoved(mouseEvent);
-    final MouseEvent backgroundButtonMouseEvent = background.mouseMoved(
-      mouseEvent
-    );
     return compareAndReturnDivergent(
       mouseEvent,
-      new MouseEvent[] { exitButtonMouseEvent, backgroundButtonMouseEvent }
+      new MouseEvent[] {
+        exitButton.mouseMoved(mouseEvent),
+        background.mouseMoved(mouseEvent),
+      }
     );
   }
 
