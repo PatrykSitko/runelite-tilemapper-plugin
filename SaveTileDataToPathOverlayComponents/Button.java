@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import lombok.Getter;
+import lombok.Setter;
 import net.runelite.client.input.MouseListener;
 import net.runelite.client.ui.overlay.RenderableEntity;
 
@@ -25,6 +26,10 @@ public class Button implements RenderableEntity, MouseListener {
   private BufferedImage hover;
   private Button.Action action;
   private boolean isMouseHovering;
+
+  @Getter
+  @Setter
+  private boolean visible;
 
   public Button(
     int x,
@@ -71,7 +76,9 @@ public class Button implements RenderableEntity, MouseListener {
 
   @Override
   public MouseEvent mouseClicked(MouseEvent mouseEvent) {
-    if (isMouseHovering && mouseEvent.getButton() == MouseEvent.BUTTON1) {
+    if (
+      visible && isMouseHovering && mouseEvent.getButton() == MouseEvent.BUTTON1
+    ) {
       this.action.onClick();
       mouseEvent.consume();
     }
@@ -80,7 +87,7 @@ public class Button implements RenderableEntity, MouseListener {
 
   @Override
   public MouseEvent mousePressed(MouseEvent mouseEvent) {
-    if (isMouseHovering) {
+    if (visible && isMouseHovering) {
       mouseEvent.consume();
     }
     return mouseEvent;
@@ -88,7 +95,7 @@ public class Button implements RenderableEntity, MouseListener {
 
   @Override
   public MouseEvent mouseReleased(MouseEvent mouseEvent) {
-    if (isMouseHovering) {
+    if (visible && isMouseHovering) {
       mouseEvent.consume();
     }
     return mouseEvent;
