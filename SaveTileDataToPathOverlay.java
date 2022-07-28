@@ -4,6 +4,9 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.events.CanvasSizeChanged;
@@ -28,6 +31,7 @@ public class SaveTileDataToPathOverlay
     300,
     Background.Type.DARK
   );
+  private final Button exitButton;
 
   @Inject
   public SaveTileDataToPathOverlay(TileMapperPlugin tileMapperPlugin) {
@@ -36,6 +40,34 @@ public class SaveTileDataToPathOverlay
     setPosition(OverlayPosition.DYNAMIC);
     setLayer(OverlayLayer.ABOVE_WIDGETS);
     setPriority(OverlayPriority.MED);
+    BufferedImage buttonImage = null, buttonImageHover = null;
+    try {
+      buttonImage =
+        ImageIO.read(
+          SaveTileDataToPathOverlay.class.getResource(
+              "buttons/close-menu-button.png"
+            )
+        );
+      buttonImageHover =
+        ImageIO.read(
+          SaveTileDataToPathOverlay.class.getResource(
+              "buttons/close-menu-button-hover.png"
+            )
+        );
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      exitButton =
+        new Button(
+          -1,
+          -1,
+          buttonImage,
+          buttonImageHover,
+          () -> {
+            SAVE_DATA_BUTTON_OVERLAY.clearDisplayPathPickerOverlayVar();
+          }
+        );
+    }
   }
 
   private void updateBackgroundLocation() {
@@ -78,6 +110,7 @@ public class SaveTileDataToPathOverlay
   @Override
   public Dimension render(Graphics2D graphics) {
     if (SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay()) {
+      exitButton.render(graphics);
       background.render(graphics);
     }
     return null;
@@ -85,16 +118,19 @@ public class SaveTileDataToPathOverlay
 
   @Override
   public MouseEvent mouseClicked(MouseEvent mouseEvent) {
+    exitButton.mouseClicked(mouseEvent);
     return mouseEvent;
   }
 
   @Override
   public MouseEvent mousePressed(MouseEvent mouseEvent) {
+    exitButton.mousePressed(mouseEvent);
     return mouseEvent;
   }
 
   @Override
   public MouseEvent mouseReleased(MouseEvent mouseEvent) {
+    exitButton.mouseReleased(mouseEvent);
     return mouseEvent;
   }
 
@@ -115,6 +151,7 @@ public class SaveTileDataToPathOverlay
 
   @Override
   public MouseEvent mouseMoved(MouseEvent mouseEvent) {
+    exitButton.mouseMoved(mouseEvent);
     return mouseEvent;
   }
 
