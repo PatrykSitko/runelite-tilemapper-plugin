@@ -37,6 +37,10 @@ public interface Divider {
         private int width;
         private Divider.Horizontal.Type dividerType;
 
+        @Getter
+        @Setter
+        private boolean visible;
+
         public Horizontal(@Positive int x, @Positive int y, @Positive int width, @Nonnull Type dividerType) {
             this.location.setLocation(x, y);
             this.width = width;
@@ -53,6 +57,9 @@ public interface Divider {
 
         @Override
         public Dimension render(Graphics2D graphics) {
+            if (!visible) {
+                return null;
+            }
             if (!location.equals(previousLocation)) {
                 previousLocation = new Point(location);
                 PiecesTool.Populator.populateHorizontalLine(divider, dividerType.getDivider(), location.x, location.y,
