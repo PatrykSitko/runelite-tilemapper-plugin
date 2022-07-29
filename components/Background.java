@@ -6,7 +6,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import lombok.AllArgsConstructor;
@@ -14,6 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.runelite.client.input.MouseListener;
 import net.runelite.client.plugins.tileMapper.helpers.ImageLoader;
+import net.runelite.client.plugins.tileMapper.helpers.PiecesTool;
 import net.runelite.client.plugins.tileMapper.helpers.PositionedImage;
 import net.runelite.client.ui.overlay.RenderableEntity;
 
@@ -67,8 +67,6 @@ public class Background implements RenderableEntity, MouseListener {
     public void perform();
   }
 
-  private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
-
   @Getter
   private final Rectangle bounds = new Rectangle();
 
@@ -100,42 +98,6 @@ public class Background implements RenderableEntity, MouseListener {
     return this.bounds.getLocation();
   }
 
-  private float calculateAmmountOfHorizontalBackgroundPieces() {
-    final int backgroundWidth = backgroundType.getBackground().getWidth();
-    final int containerWidth = this.bounds.width;
-    final double ammountOfFittingPieces = ((double) containerWidth) / ((double) backgroundWidth);
-    return Float.parseFloat(DECIMAL_FORMAT.format(ammountOfFittingPieces));
-  }
-
-  private float calculateAmmountOfVerticalBackgroundPieces() {
-    final int backgroundHeight = backgroundType.getBackground().getHeight();
-    final int containerHeight = this.bounds.height;
-    final double ammountOfFittingPieces = ((double) containerHeight) / ((double) backgroundHeight);
-    return Float.parseFloat(DECIMAL_FORMAT.format(ammountOfFittingPieces));
-  }
-
-  private float calculateAmmountOfHorizontalBorderPieces() {
-    final int cornerPieceWidth = backgroundType.getLeftTopCorner().getWidth();
-    final int borderPieceWidth = backgroundType.getTopBorder().getWidth();
-    final int containerWidth = this.bounds.width;
-    final int borderWidthWithoutCorners = containerWidth - (cornerPieceWidth * 2);
-    final double ammountOfBorderPiecesFittingInBorder = ((double) borderWidthWithoutCorners)
-        / ((double) borderPieceWidth);
-    return Float.parseFloat(
-        DECIMAL_FORMAT.format(ammountOfBorderPiecesFittingInBorder));
-  }
-
-  private float calculateAmmountOfVerticalBorderPieces() {
-    final int cornerPieceHeight = backgroundType.getLeftTopCorner().getHeight();
-    final int borderPieceHeight = backgroundType.getLeftBorder().getHeight();
-    final int containerHeight = this.bounds.height;
-    final int borderHeightWithoutCorners = containerHeight - (cornerPieceHeight * 2);
-    final double ammountOfBorderPiecesFittingInBorder = ((double) borderHeightWithoutCorners)
-        / ((double) borderPieceHeight);
-    return Float.parseFloat(
-        DECIMAL_FORMAT.format(ammountOfBorderPiecesFittingInBorder));
-  }
-
   @Override
   public Dimension render(Graphics2D graphics) {
     if (!visible) {
@@ -163,8 +125,12 @@ public class Background implements RenderableEntity, MouseListener {
     final BufferedImage backgroundImage = backgroundType.getBackground();
     final int startingXposition = this.bounds.x;
     final int startingYposition = this.bounds.y;
-    final float ammountOfColumnsFloat = calculateAmmountOfHorizontalBackgroundPieces();
-    final float ammountOfRowsFloat = calculateAmmountOfVerticalBackgroundPieces();
+    final float ammountOfColumnsFloat = PiecesTool.Calculator.calculateAmmountOfPieces(
+        PiecesTool.Calculator.Orientation.HORIZONTAL.setPieceSize(backgroundType.getBackground().getWidth()),
+        this.bounds.width);
+    final float ammountOfRowsFloat = PiecesTool.Calculator.calculateAmmountOfPieces(
+        PiecesTool.Calculator.Orientation.VERTICAL.setPieceSize(backgroundType.getBackground().getHeight()),
+        this.bounds.height);
     final int pieceWidth = backgroundImage.getWidth();
     final int pieceHeight = backgroundImage.getHeight();
     final int lastPieceWidth = (int) (backgroundImage.getWidth() *
@@ -249,11 +215,14 @@ public class Background implements RenderableEntity, MouseListener {
       ArrayList<PositionedImage> border) {
     final BufferedImage topBorderPiece = backgroundType.getTopBorder();
     final BufferedImage bottomBorderPiece = backgroundType.getBottomBorder();
-    final float ammountOfPieces = calculateAmmountOfHorizontalBorderPieces();
+    final int borderPieceWidth = topBorderPiece.getWidth();
+    final int availableSpace = this.bounds.width - backgroundType.getLeftTopCorner().getWidth() * 2;
+    final float ammountOfPieces = PiecesTool.Calculator.calculateAmmountOfPieces(
+        PiecesTool.Calculator.Orientation.HORIZONTAL.setPieceSize(borderPieceWidth),
+        availableSpace);
     final int lastPieceWidth = (int) (topBorderPiece.getWidth() * (ammountOfPieces - (int) ammountOfPieces));
     final int totalAmmountOfPiecesToBeDrawn = (int) ammountOfPieces +
         (lastPieceWidth != 0 ? 1 : 0);
-    final int borderPieceWidth = topBorderPiece.getWidth();
     int xPos = bounds.x + backgroundType.getLeftTopCorner().getWidth();
     final int topYpos = bounds.y;
     final int bottomYpos = bounds.y + bounds.height - backgroundType.getBottomBorder().getHeight();
@@ -281,11 +250,13 @@ public class Background implements RenderableEntity, MouseListener {
       ArrayList<PositionedImage> border) {
     final BufferedImage leftBorderPiece = backgroundType.getLeftBorder();
     final BufferedImage rightBorderPiece = backgroundType.getRightBorder();
-    final float ammountOfPieces = calculateAmmountOfVerticalBorderPieces();
+    final int borderPieceHeight = leftBorderPiece.getHeight();
+    final int availableSpace = this.bounds.height - backgroundType.getLeftTopCorner().getHeight() * 2;
+    final float ammountOfPieces = PiecesTool.Calculator.calculateAmmountOfPieces(
+        PiecesTool.Calculator.Orientation.VERTICAL.setPieceSize(borderPieceHeight), availableSpace);
     final int lastPieceHeigh = (int) (leftBorderPiece.getHeight() * (ammountOfPieces - (int) ammountOfPieces));
     final int totalAmmountOfPiecesToBeDrawn = (int) ammountOfPieces +
         (lastPieceHeigh != 0 ? 1 : 0);
-    final int borderPieceHeight = leftBorderPiece.getHeight();
     int yPos = bounds.y + backgroundType.getLeftTopCorner().getHeight();
     final int leftXpos = bounds.x;
     final int rightXpos = bounds.x + bounds.width - leftBorderPiece.getWidth();
