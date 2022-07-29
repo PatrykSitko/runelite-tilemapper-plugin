@@ -52,10 +52,10 @@ public class Background implements RenderableEntity, MouseListener {
     // background
     private BufferedImage background;
     // corners
-    private BufferedImage leftTopCorner;
-    private BufferedImage rightTopCorner;
-    private BufferedImage leftBottomCorner;
-    private BufferedImage rightBottomCorner;
+    private BufferedImage topLeftCorner;
+    private BufferedImage topRightCorner;
+    private BufferedImage bottomLeftCorner;
+    private BufferedImage bottomRightCorner;
     // borders
     private BufferedImage leftBorder;
     private BufferedImage topBorder;
@@ -74,7 +74,7 @@ public class Background implements RenderableEntity, MouseListener {
   private final Type backgroundType;
 
   private volatile ArrayList<PositionedImage> background = new ArrayList<>();
-  private ArrayList<PositionedImage> border = new ArrayList<>();
+  private volatile ArrayList<PositionedImage> border = new ArrayList<>();
 
   @Getter
   @Setter
@@ -112,172 +112,16 @@ public class Background implements RenderableEntity, MouseListener {
       previousBounds = new Rectangle(bounds);
       background = new ArrayList<>();
       border = new ArrayList<>();
-      populateBackgroundArray(background);
-      populateBorderArrayWithCornerEntries(border);
-      populateBorderArrayWithHorizontalEntries(border);
-      populateBorderArrayWithVerticalEntries(border);
+      PiecesTool.Populator.populateBackground(background, backgroundType.getBackground(), bounds);
+      PiecesTool.Populator.populateBorder(border,
+          new BufferedImage[] { backgroundType.getTopLeftCorner(), backgroundType.getTopRightCorner(),
+              backgroundType.getBottomLeftCorner(), backgroundType.getBottomRightCorner() },
+          new BufferedImage[] { backgroundType.getTopBorder(), backgroundType.getRightBorder(),
+              backgroundType.getBottomBorder(), backgroundType.getLeftBorder() },
+          bounds);
     }
     background.forEach(entry -> entry.draw(graphics));
     border.forEach(entry -> entry.draw(graphics));
-  }
-
-  private void populateBackgroundArray(ArrayList<PositionedImage> background) {
-    final BufferedImage backgroundImage = backgroundType.getBackground();
-    final int startingXposition = this.bounds.x;
-    final int startingYposition = this.bounds.y;
-    final float ammountOfColumnsFloat = PiecesTool.Calculator.calculateAmmountOfPieces(
-        PiecesTool.Calculator.Orientation.HORIZONTAL.setPieceSize(backgroundType.getBackground().getWidth()),
-        this.bounds.width);
-    final float ammountOfRowsFloat = PiecesTool.Calculator.calculateAmmountOfPieces(
-        PiecesTool.Calculator.Orientation.VERTICAL.setPieceSize(backgroundType.getBackground().getHeight()),
-        this.bounds.height);
-    final int pieceWidth = backgroundImage.getWidth();
-    final int pieceHeight = backgroundImage.getHeight();
-    final int lastPieceWidth = (int) (backgroundImage.getWidth() *
-        (ammountOfColumnsFloat - (int) ammountOfColumnsFloat));
-    final int lastPieceHeight = (int) (backgroundImage.getHeight() *
-        (ammountOfRowsFloat - (int) ammountOfRowsFloat));
-    final int ammountOfColumns = (int) ammountOfColumnsFloat +
-        (lastPieceWidth != 0 ? 1 : 0);
-    final int ammountOfRows = (int) ammountOfRowsFloat +
-        (lastPieceHeight != 0 ? 1 : 0);
-    ArrayList<Thread> backgroundRowThreads = new ArrayList<>();
-    for (int column = 0; column <= ammountOfColumns - 1; column++) {
-      final int finalColumn = column;
-      final Thread rowThread = new Thread(
-          () -> {
-            for (int row = 0; row <= ammountOfRows - 1; row++) {
-              final boolean isLastColumn = finalColumn == ammountOfColumns - 1;
-              final boolean isLastRow = row == ammountOfRows - 1;
-              final int x = startingXposition + finalColumn * pieceWidth;
-              final int y = startingYposition + row * pieceHeight;
-              final int width = isLastColumn && lastPieceWidth > 0
-                  ? lastPieceWidth
-                  : pieceWidth;
-              final int height = isLastRow && lastPieceHeight > 0
-                  ? lastPieceHeight
-                  : pieceHeight;
-              synchronized (Background.class) {
-                background.add(
-                    new PositionedImage(backgroundImage, x, y, width, height));
-              }
-            }
-          });
-      backgroundRowThreads.add(rowThread);
-    }
-    backgroundRowThreads.forEach(
-        rowThread -> {
-          rowThread.setDaemon(true);
-          rowThread.start();
-        });
-  }
-
-  private void populateBorderArrayWithCornerEntries(
-      ArrayList<PositionedImage> border) {
-    final BufferedImage leftTop = backgroundType.getLeftTopCorner();
-    border.add(
-        new PositionedImage(
-            leftTop,
-            bounds.x,
-            bounds.y,
-            leftTop.getWidth(),
-            leftTop.getHeight()));
-
-    final BufferedImage rightTop = backgroundType.getRightTopCorner();
-    border.add(
-        new PositionedImage(
-            rightTop,
-            bounds.x + bounds.width - rightTop.getWidth(),
-            bounds.y,
-            rightTop.getWidth(),
-            rightTop.getHeight()));
-
-    final BufferedImage leftBottom = backgroundType.getLeftBottomCorner();
-    border.add(
-        new PositionedImage(
-            leftBottom,
-            bounds.x,
-            bounds.y + bounds.height - leftBottom.getHeight(),
-            leftBottom.getWidth(),
-            leftBottom.getHeight()));
-
-    final BufferedImage rightBottom = backgroundType.getRightBottomCorner();
-    border.add(
-        new PositionedImage(
-            rightBottom,
-            bounds.x + bounds.width - rightBottom.getWidth(),
-            bounds.y + bounds.height - rightBottom.getHeight(),
-            rightBottom.getWidth(),
-            rightBottom.getHeight()));
-  }
-
-  private void populateBorderArrayWithHorizontalEntries(
-      ArrayList<PositionedImage> border) {
-    final BufferedImage topBorderPiece = backgroundType.getTopBorder();
-    final BufferedImage bottomBorderPiece = backgroundType.getBottomBorder();
-    final int borderPieceWidth = topBorderPiece.getWidth();
-    final int availableSpace = this.bounds.width - backgroundType.getLeftTopCorner().getWidth() * 2;
-    final float ammountOfPieces = PiecesTool.Calculator.calculateAmmountOfPieces(
-        PiecesTool.Calculator.Orientation.HORIZONTAL.setPieceSize(borderPieceWidth),
-        availableSpace);
-    final int lastPieceWidth = (int) (topBorderPiece.getWidth() * (ammountOfPieces - (int) ammountOfPieces));
-    final int totalAmmountOfPiecesToBeDrawn = (int) ammountOfPieces +
-        (lastPieceWidth != 0 ? 1 : 0);
-    int xPos = bounds.x + backgroundType.getLeftTopCorner().getWidth();
-    final int topYpos = bounds.y;
-    final int bottomYpos = bounds.y + bounds.height - backgroundType.getBottomBorder().getHeight();
-    for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawn - 1; currentPiece++) {
-      final boolean useLastPieceWidth = currentPiece == totalAmmountOfPiecesToBeDrawn - 1 && lastPieceWidth > 0;
-      border.add(
-          new PositionedImage(
-              topBorderPiece,
-              xPos,
-              topYpos,
-              useLastPieceWidth ? lastPieceWidth : topBorderPiece.getWidth(),
-              topBorderPiece.getHeight()));
-      border.add(
-          new PositionedImage(
-              bottomBorderPiece,
-              xPos,
-              bottomYpos,
-              useLastPieceWidth ? lastPieceWidth : bottomBorderPiece.getWidth(),
-              bottomBorderPiece.getHeight()));
-      xPos += borderPieceWidth;
-    }
-  }
-
-  private void populateBorderArrayWithVerticalEntries(
-      ArrayList<PositionedImage> border) {
-    final BufferedImage leftBorderPiece = backgroundType.getLeftBorder();
-    final BufferedImage rightBorderPiece = backgroundType.getRightBorder();
-    final int borderPieceHeight = leftBorderPiece.getHeight();
-    final int availableSpace = this.bounds.height - backgroundType.getLeftTopCorner().getHeight() * 2;
-    final float ammountOfPieces = PiecesTool.Calculator.calculateAmmountOfPieces(
-        PiecesTool.Calculator.Orientation.VERTICAL.setPieceSize(borderPieceHeight), availableSpace);
-    final int lastPieceHeigh = (int) (leftBorderPiece.getHeight() * (ammountOfPieces - (int) ammountOfPieces));
-    final int totalAmmountOfPiecesToBeDrawn = (int) ammountOfPieces +
-        (lastPieceHeigh != 0 ? 1 : 0);
-    int yPos = bounds.y + backgroundType.getLeftTopCorner().getHeight();
-    final int leftXpos = bounds.x;
-    final int rightXpos = bounds.x + bounds.width - leftBorderPiece.getWidth();
-    for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawn - 1; currentPiece++) {
-      final boolean useLastPieceHeight = currentPiece == totalAmmountOfPiecesToBeDrawn - 1 && lastPieceHeigh > 0;
-      border.add(
-          new PositionedImage(
-              leftBorderPiece,
-              leftXpos,
-              yPos,
-              leftBorderPiece.getWidth(),
-              useLastPieceHeight ? lastPieceHeigh : leftBorderPiece.getHeight()));
-      border.add(
-          new PositionedImage(
-              rightBorderPiece,
-              rightXpos,
-              yPos,
-              rightBorderPiece.getWidth(),
-              useLastPieceHeight ? lastPieceHeigh : rightBorderPiece.getHeight()));
-      yPos += borderPieceHeight;
-    }
   }
 
   private boolean mouseInBounds(MouseEvent mouseEvent) {
