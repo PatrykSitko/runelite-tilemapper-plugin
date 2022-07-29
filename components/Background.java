@@ -112,11 +112,15 @@ public class Background implements RenderableEntity, MouseListener {
       previousBounds = new Rectangle(bounds);
       background = new ArrayList<>();
       border = new ArrayList<>();
-      PiecesTool.Populator.populateBackground(background, backgroundType.getBackground(), bounds);
+      PiecesTool.Populator.populateBackground(background,
+          backgroundType.getBackground(), bounds);
       PiecesTool.Populator.populateBorder(border,
-          new BufferedImage[] { backgroundType.getTopLeftCorner(), backgroundType.getTopRightCorner(),
-              backgroundType.getBottomLeftCorner(), backgroundType.getBottomRightCorner() },
-          new BufferedImage[] { backgroundType.getTopBorder(), backgroundType.getRightBorder(),
+          new BufferedImage[] { backgroundType.getTopLeftCorner(),
+              backgroundType.getTopRightCorner(),
+              backgroundType.getBottomLeftCorner(), backgroundType.getBottomRightCorner()
+          },
+          new BufferedImage[] { backgroundType.getTopBorder(),
+              backgroundType.getRightBorder(),
               backgroundType.getBottomBorder(), backgroundType.getLeftBorder() },
           bounds);
     }
