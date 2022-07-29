@@ -50,17 +50,17 @@ public class Background implements RenderableEntity, MouseListener {
         ImageLoader.loadImage("../borders/bottom-border-dark.png"));
 
     // background
-    private BufferedImage background;
+    private final BufferedImage background;
     // corners
-    private BufferedImage topLeftCorner;
-    private BufferedImage topRightCorner;
-    private BufferedImage bottomLeftCorner;
-    private BufferedImage bottomRightCorner;
+    private final BufferedImage topLeftCorner;
+    private final BufferedImage topRightCorner;
+    private final BufferedImage bottomLeftCorner;
+    private final BufferedImage bottomRightCorner;
     // borders
-    private BufferedImage leftBorder;
-    private BufferedImage topBorder;
-    private BufferedImage rightBorder;
-    private BufferedImage bottomBorder;
+    private final BufferedImage leftBorder;
+    private final BufferedImage topBorder;
+    private final BufferedImage rightBorder;
+    private final BufferedImage bottomBorder;
   }
 
   public static interface OnOutOfBoundsClickAction {
