@@ -4,10 +4,13 @@ import java.awt.image.BufferedImage;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import net.runelite.client.plugins.tileMapper.helpers.ImageLoader;
 
 public interface Divider {
 
+    @Getter
+    @AllArgsConstructor
     public static class Horizontal {
 
         @AllArgsConstructor
@@ -15,13 +18,18 @@ public interface Divider {
         public static enum Type {
             DARK(ImageLoader.loadImage("../dividers/divider-horizontal-dark.png"));
 
-            private BufferedImage divider;
+            private final BufferedImage divider;
         }
 
+        private int x;
+        private int y;
+        @Setter
+        private int width;
         private Divider.Horizontal.Type dividerType;
 
-        public Horizontal(int x, int y, int width, Divider.Horizontal.Type dividerType) {
-            this.dividerType = dividerType;
+        public void setPosition(int x, int y) {
+            this.x = x;
+            this.y = y;
         }
     }
 }
