@@ -30,32 +30,32 @@ public interface Divider {
         }
 
         private final ArrayList<PositionedImage> divider = new ArrayList<>();
-        private Point previousPosition = new Point();
-        private final Point position = new Point();
+        private Point previousLocation = new Point();
+        private final Point location = new Point();
         @Setter
         @Getter
         private int width;
         private Divider.Horizontal.Type dividerType;
 
         public Horizontal(@Positive int x, @Positive int y, @Positive int width, @Nonnull Type dividerType) {
-            this.position.setLocation(x, y);
+            this.location.setLocation(x, y);
             this.width = width;
             this.dividerType = dividerType;
         }
 
-        public Point getPosition() {
-            return new Point(position);
+        public Point getLocation() {
+            return new Point(location);
         }
 
-        public void setPosition(@Positive int x, @Positive int y) {
-            position.setLocation(x, y);
+        public void setLocation(@Positive int x, @Positive int y) {
+            location.setLocation(x, y);
         }
 
         @Override
         public Dimension render(Graphics2D graphics) {
-            if (!position.equals(previousPosition)) {
-                previousPosition = new Point(position);
-                PiecesTool.Populator.populateHorizontalLine(divider, dividerType.getDivider(), position.x, position.y,
+            if (!location.equals(previousLocation)) {
+                previousLocation = new Point(location);
+                PiecesTool.Populator.populateHorizontalLine(divider, dividerType.getDivider(), location.x, location.y,
                         width);
             }
             divider.forEach(entry -> entry.draw(graphics));
