@@ -8,36 +8,51 @@ import java.util.ArrayList;
 import javax.annotation.Nonnull;
 
 import lombok.Getter;
+import net.openhft.chronicle.core.annotation.Positive;
 import net.openhft.chronicle.values.Array;
-import net.runelite.client.plugins.tileMapper.components.Background;
 
 public interface PiecesTool {
 
-    public static interface Calculator {
+    static interface Calculator {
         static final String DEFAULT_DECIMAL_FORMAT_PATTERN = "0.00";
         static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat(DEFAULT_DECIMAL_FORMAT_PATTERN);
 
-        public static enum Orientation {
+        static enum Orientation {
             HORIZONTAL, VERTICAL;
 
             @Getter
             private int pieceSize;
 
-            public Orientation setPieceSize(int pieceSize) {
+            public Orientation setPieceSize(@Positive int pieceSize) {
                 this.pieceSize = pieceSize;
                 return this;
             }
         }
 
-        public static float calculateAmmountOfPieces(Orientation pieceSize, int availableSpace) {
+        static float calculateAmmountOfPieces(@Nonnull Orientation pieceSize, @Positive int availableSpace) {
             final double ammountOfFittingPieces = ((double) availableSpace) / ((double) pieceSize.getPieceSize());
             return Float.parseFloat(DECIMAL_FORMATTER.format(ammountOfFittingPieces));
         }
     }
 
-    public static interface Populator {
+    static interface Populator {
+        static interface SynchronizationKeys {
 
-        public static void populateBackground(@Nonnull ArrayList<PositionedImage> arrayToPopulate,
+            static interface BACKGROUND {
+            }
+
+            static interface BORDER {
+            }
+        }
+
+        /**
+         * 
+         * @param arrayToPopulate the ArrayList where the positioned images will be put
+         *                        in.
+         * @param backgroundImage the image to be used.
+         * @param availableSpace  the bounds of the drawn component.
+         */
+        static void populateBackground(@Nonnull ArrayList<PositionedImage> arrayToPopulate,
                 @Nonnull final BufferedImage backgroundImage, @Nonnull final Rectangle availableSpace) {
             final ArrayList<PositionedImage> positionedImages = new ArrayList<>();
             final int startingXposition = availableSpace.x;
@@ -76,7 +91,7 @@ public interface PiecesTool {
                                 final int height = isLastRow && lastPieceHeight > 0
                                         ? lastPieceHeight
                                         : pieceHeight;
-                                synchronized (Background.class) {
+                                synchronized (Populator.SynchronizationKeys.BACKGROUND.class) {
                                     positionedImages.add(
                                             new PositionedImage(backgroundImage, x, y, width, height));
                                 }
@@ -97,15 +112,28 @@ public interface PiecesTool {
                         e.printStackTrace();
                     }
                 } while (backgroundRowThreads.stream().filter(rowThread -> rowThread.isAlive()).count() > 0);
-                arrayToPopulate.addAll(positionedImages);
+                synchronized (Populator.SynchronizationKeys.BACKGROUND.class) {
+                    arrayToPopulate.addAll(positionedImages);
+                }
             });
         }
 
+        /**
+         * 
+         * @param arrayToPopulate the ArrayList where the positioned images will be put
+         *                        in.
+         * @param cornerPieces    the corner piece images put into a primitive array in
+         *                        the following order: top-left, top-right, bottom-left,
+         *                        bottom-right.
+         * @param borderPieces    the border piece images put into a primitive array in
+         *                        the following order: top, right, bottom, left.
+         * @param availableSpace  the bounds of the drawn component.
+         */
         @Array(length = 4)
-        public static void populateBorders(@Nonnull ArrayList<PositionedImage> arrayToPopulate,
+        static void populateBorder(@Nonnull ArrayList<PositionedImage> arrayToPopulate,
+                @Nonnull final BufferedImage[] cornerPieces,
                 @Nonnull final BufferedImage[] borderPieces,
-                @Nonnull final Rectangle availableSpace,
-                @Nonnull final BufferedImage[] cornerPieces) {
+                @Nonnull final Rectangle availableSpace) {
             final ArrayList<PositionedImage> positionedImages = new ArrayList<>();
 
             int iteration = 0;
@@ -116,38 +144,146 @@ public interface PiecesTool {
             for (BufferedImage cornerPiece : cornerPieces) {
                 switch (iteration++) {
                     case TOP_LEFT:
-                        positionedImages.add(new PositionedImage(cornerPiece, availableSpace.x,
-                                availableSpace.y, availableSpace.width, availableSpace.height));
+                        synchronized (Populator.SynchronizationKeys.BORDER.class) {
+                            positionedImages.add(new PositionedImage(cornerPiece, availableSpace.x,
+                                    availableSpace.y, availableSpace.width, availableSpace.height));
+                        }
                         break;
                     case TOP_RIGHT:
-                        positionedImages
-                                .add(new PositionedImage(cornerPiece,
-                                        availableSpace.x + availableSpace.width - cornerPiece.getWidth(),
-                                        availableSpace.y,
-                                        availableSpace.width, availableSpace.height));
+                        synchronized (Populator.SynchronizationKeys.BORDER.class) {
+                            positionedImages
+                                    .add(new PositionedImage(cornerPiece,
+                                            availableSpace.x + availableSpace.width - cornerPiece.getWidth(),
+                                            availableSpace.y,
+                                            availableSpace.width, availableSpace.height));
+                        }
                         break;
                     case BOTTOM_LEFT:
-                        positionedImages.add(new PositionedImage(cornerPiece, availableSpace.x,
-                                availableSpace.y + availableSpace.height - cornerPiece.getHeight(),
-                                availableSpace.width, availableSpace.height));
+                        synchronized (Populator.SynchronizationKeys.BORDER.class) {
+                            positionedImages.add(new PositionedImage(cornerPiece, availableSpace.x,
+                                    availableSpace.y + availableSpace.height - cornerPiece.getHeight(),
+                                    availableSpace.width, availableSpace.height));
+                        }
                         break;
                     case BOTTOM_RIGHT:
-                        positionedImages
-                                .add(new PositionedImage(cornerPiece,
-                                        availableSpace.x + availableSpace.width - cornerPiece.getWidth(),
-                                        availableSpace.y + availableSpace.height - cornerPiece.getHeight(),
-                                        availableSpace.width, availableSpace.height));
+                        synchronized (Populator.SynchronizationKeys.BORDER.class) {
+                            positionedImages
+                                    .add(new PositionedImage(cornerPiece,
+                                            availableSpace.x + availableSpace.width - cornerPiece.getWidth(),
+                                            availableSpace.y + availableSpace.height - cornerPiece.getHeight(),
+                                            availableSpace.width, availableSpace.height));
+                        }
                         break;
                 }
             }
+            // HORIZONTAL:
+            final int HORIZONTAL_PIECE = 0;
+            final int VERTICAL_PIECE = 1;
+            final int borderPieceWidth = borderPieces[HORIZONTAL_PIECE].getWidth();
+            final int spaceToPopulateHorizontal = availableSpace.width - cornerPieces[HORIZONTAL_PIECE].getWidth() * 2;
+            final float ammountOfPiecesHorizontal = PiecesTool.Calculator.calculateAmmountOfPieces(
+                    PiecesTool.Calculator.Orientation.HORIZONTAL.setPieceSize(borderPieceWidth),
+                    spaceToPopulateHorizontal);
+            final int lastPieceWidth = (int) (borderPieces[HORIZONTAL_PIECE].getWidth()
+                    * (ammountOfPiecesHorizontal - (int) ammountOfPiecesHorizontal));
+            final int totalAmmountOfPiecesToBeDrawnHorizontal = (int) ammountOfPiecesHorizontal +
+                    (lastPieceWidth != 0 ? 1 : 0);
+            int xPos = availableSpace.x + cornerPieces[0].getWidth();
+            final int topYpos = availableSpace.y;
+            final int bottomYpos = availableSpace.y + availableSpace.height
+                    - borderPieces[HORIZONTAL_PIECE].getHeight();
+            // VERTICAL:
+            final int borderPieceHeight = borderPieces[VERTICAL_PIECE].getHeight();
+            final int spaceToPopulateVertical = availableSpace.height
+                    - cornerPieces[0].getHeight() * 2;
+            final float ammountOfPiecesVertical = PiecesTool.Calculator.calculateAmmountOfPieces(
+                    PiecesTool.Calculator.Orientation.VERTICAL.setPieceSize(borderPieceHeight),
+                    spaceToPopulateVertical);
+            final int lastPieceHeigh = (int) (borderPieces[VERTICAL_PIECE].getHeight()
+                    * (ammountOfPiecesVertical - (int) ammountOfPiecesVertical));
+            final int totalAmmountOfPiecesToBeDrawn = (int) ammountOfPiecesVertical +
+                    (lastPieceHeigh != 0 ? 1 : 0);
+            int yPos = availableSpace.y + cornerPieces[0].getHeight();
+            final int leftXpos = availableSpace.x;
+            final int rightXpos = availableSpace.x + availableSpace.width - borderPieces[VERTICAL_PIECE].getWidth();
             iteration = 0;
             for (BufferedImage borderPiece : borderPieces) {
-                switch (iteration) {
+                switch (iteration++) {
                     case TOP:
+                        xPos = availableSpace.x + cornerPieces[0].getWidth();
+                        for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawnHorizontal
+                                - 1; currentPiece++) {
+                            final boolean useLastPieceWidth = currentPiece == totalAmmountOfPiecesToBeDrawnHorizontal
+                                    - 1
+                                    && lastPieceWidth > 0;
+                            synchronized (Populator.SynchronizationKeys.BORDER.class) {
+                                positionedImages.add(
+                                        new PositionedImage(
+                                                borderPiece,
+                                                xPos,
+                                                topYpos,
+                                                useLastPieceWidth ? lastPieceWidth : borderPiece.getWidth(),
+                                                borderPiece.getHeight()));
+                            }
+                            xPos += borderPieceWidth;
+                        }
+                        break;
+                    case RIGHT:
+                        yPos = availableSpace.y + cornerPieces[0].getHeight();
+                        for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawn - 1; currentPiece++) {
+                            final boolean useLastPieceHeight = currentPiece == totalAmmountOfPiecesToBeDrawn - 1
+                                    && lastPieceHeigh > 0;
+                            synchronized (Populator.SynchronizationKeys.BORDER.class) {
+                                positionedImages.add(
+                                        new PositionedImage(
+                                                borderPiece,
+                                                leftXpos,
+                                                yPos,
+                                                borderPiece.getWidth(),
+                                                useLastPieceHeight ? lastPieceHeigh : borderPiece.getHeight()));
+                            }
+                            yPos += borderPieceHeight;
+                        }
+                        break;
+                    case BOTTOM:
+                        xPos = availableSpace.x + cornerPieces[0].getWidth();
+                        for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawn - 1; currentPiece++) {
+                            final boolean useLastPieceWidth = currentPiece == totalAmmountOfPiecesToBeDrawn - 1
+                                    && lastPieceWidth > 0;
+                            synchronized (Populator.SynchronizationKeys.BORDER.class) {
+                                arrayToPopulate.add(
+                                        new PositionedImage(
+                                                borderPiece,
+                                                xPos,
+                                                bottomYpos,
+                                                useLastPieceWidth ? lastPieceWidth : borderPiece.getWidth(),
+                                                borderPiece.getHeight()));
+                            }
+                            xPos += borderPieceWidth;
+                        }
+                        break;
+                    case LEFT:
+                        yPos = availableSpace.y + cornerPieces[0].getHeight();
+                        for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawn - 1; currentPiece++) {
+                            final boolean useLastPieceHeight = currentPiece == totalAmmountOfPiecesToBeDrawn - 1
+                                    && lastPieceHeigh > 0;
+                            synchronized (Populator.SynchronizationKeys.BORDER.class) {
+                                positionedImages.add(
+                                        new PositionedImage(
+                                                borderPiece,
+                                                rightXpos,
+                                                yPos,
+                                                borderPiece.getWidth(),
+                                                useLastPieceHeight ? lastPieceHeigh : borderPiece.getHeight()));
+                            }
+                            yPos += borderPieceHeight;
+                        }
                         break;
                 }
             }
-            arrayToPopulate.addAll(positionedImages);
+            synchronized (Populator.SynchronizationKeys.BORDER.class) {
+                arrayToPopulate.addAll(positionedImages);
+            }
         }
     }
 }
