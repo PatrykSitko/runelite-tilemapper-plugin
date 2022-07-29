@@ -29,7 +29,7 @@ public interface Divider {
             private final BufferedImage divider;
         }
 
-        private final ArrayList<PositionedImage> divider = new ArrayList<>();
+        private ArrayList<PositionedImage> divider = new ArrayList<>();
         private Point previousLocation = new Point();
         private final Point location = new Point();
         @Setter
@@ -62,6 +62,7 @@ public interface Divider {
             }
             if (!location.equals(previousLocation)) {
                 previousLocation = new Point(location);
+                divider = new ArrayList<>();
                 PiecesTool.Populator.populateHorizontalLine(divider, dividerType.getDivider(), location.x, location.y,
                         width);
             }
