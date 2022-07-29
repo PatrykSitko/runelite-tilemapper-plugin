@@ -104,18 +104,16 @@ public interface PiecesTool {
                         rowThread.setDaemon(true);
                         rowThread.start();
                     });
-            new Thread(() -> {
-                do {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                } while (backgroundRowThreads.stream().filter(rowThread -> rowThread.isAlive()).count() > 0);
+            Thread populatingArrayThread = new Thread(() -> {
+                while (backgroundRowThreads.stream().filter(rowThread -> rowThread.isAlive()).count() > 0) {
+                    continue;
+                }
                 synchronized (Populator.SynchronizationKeys.BACKGROUND.class) {
                     arrayToPopulate.addAll(positionedImages);
                 }
             });
+            populatingArrayThread.setDaemon(true);
+            populatingArrayThread.start();
         }
 
         /**
@@ -146,7 +144,7 @@ public interface PiecesTool {
                     case TOP_LEFT:
                         synchronized (Populator.SynchronizationKeys.BORDER.class) {
                             positionedImages.add(new PositionedImage(cornerPiece, availableSpace.x,
-                                    availableSpace.y, availableSpace.width, availableSpace.height));
+                                    availableSpace.y, cornerPiece.getWidth(), cornerPiece.getHeight()));
                         }
                         break;
                     case TOP_RIGHT:
@@ -155,14 +153,14 @@ public interface PiecesTool {
                                     .add(new PositionedImage(cornerPiece,
                                             availableSpace.x + availableSpace.width - cornerPiece.getWidth(),
                                             availableSpace.y,
-                                            availableSpace.width, availableSpace.height));
+                                            cornerPiece.getWidth(), cornerPiece.getHeight()));
                         }
                         break;
                     case BOTTOM_LEFT:
                         synchronized (Populator.SynchronizationKeys.BORDER.class) {
                             positionedImages.add(new PositionedImage(cornerPiece, availableSpace.x,
                                     availableSpace.y + availableSpace.height - cornerPiece.getHeight(),
-                                    availableSpace.width, availableSpace.height));
+                                    cornerPiece.getWidth(), cornerPiece.getHeight()));
                         }
                         break;
                     case BOTTOM_RIGHT:
@@ -171,7 +169,7 @@ public interface PiecesTool {
                                     .add(new PositionedImage(cornerPiece,
                                             availableSpace.x + availableSpace.width - cornerPiece.getWidth(),
                                             availableSpace.y + availableSpace.height - cornerPiece.getHeight(),
-                                            availableSpace.width, availableSpace.height));
+                                            cornerPiece.getWidth(), cornerPiece.getHeight()));
                         }
                         break;
                 }
@@ -201,7 +199,7 @@ public interface PiecesTool {
                     spaceToPopulateVertical);
             final int lastPieceHeigh = (int) (borderPieces[VERTICAL_PIECE].getHeight()
                     * (ammountOfPiecesVertical - (int) ammountOfPiecesVertical));
-            final int totalAmmountOfPiecesToBeDrawn = (int) ammountOfPiecesVertical +
+            final int totalAmmountOfPiecesToBeDrawnVertical = (int) ammountOfPiecesVertical +
                     (lastPieceHeigh != 0 ? 1 : 0);
             int yPos = availableSpace.y + cornerPieces[0].getHeight();
             final int leftXpos = availableSpace.x;
@@ -230,14 +228,15 @@ public interface PiecesTool {
                         break;
                     case RIGHT:
                         yPos = availableSpace.y + cornerPieces[0].getHeight();
-                        for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawn - 1; currentPiece++) {
-                            final boolean useLastPieceHeight = currentPiece == totalAmmountOfPiecesToBeDrawn - 1
+                        for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawnVertical
+                                - 1; currentPiece++) {
+                            final boolean useLastPieceHeight = currentPiece == totalAmmountOfPiecesToBeDrawnVertical - 1
                                     && lastPieceHeigh > 0;
                             synchronized (Populator.SynchronizationKeys.BORDER.class) {
                                 positionedImages.add(
                                         new PositionedImage(
                                                 borderPiece,
-                                                leftXpos,
+                                                rightXpos,
                                                 yPos,
                                                 borderPiece.getWidth(),
                                                 useLastPieceHeight ? lastPieceHeigh : borderPiece.getHeight()));
@@ -247,8 +246,10 @@ public interface PiecesTool {
                         break;
                     case BOTTOM:
                         xPos = availableSpace.x + cornerPieces[0].getWidth();
-                        for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawn - 1; currentPiece++) {
-                            final boolean useLastPieceWidth = currentPiece == totalAmmountOfPiecesToBeDrawn - 1
+                        for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawnHorizontal
+                                - 1; currentPiece++) {
+                            final boolean useLastPieceWidth = currentPiece == totalAmmountOfPiecesToBeDrawnHorizontal
+                                    - 1
                                     && lastPieceWidth > 0;
                             synchronized (Populator.SynchronizationKeys.BORDER.class) {
                                 arrayToPopulate.add(
@@ -264,14 +265,15 @@ public interface PiecesTool {
                         break;
                     case LEFT:
                         yPos = availableSpace.y + cornerPieces[0].getHeight();
-                        for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawn - 1; currentPiece++) {
-                            final boolean useLastPieceHeight = currentPiece == totalAmmountOfPiecesToBeDrawn - 1
+                        for (int currentPiece = 0; currentPiece <= totalAmmountOfPiecesToBeDrawnVertical
+                                - 1; currentPiece++) {
+                            final boolean useLastPieceHeight = currentPiece == totalAmmountOfPiecesToBeDrawnVertical - 1
                                     && lastPieceHeigh > 0;
                             synchronized (Populator.SynchronizationKeys.BORDER.class) {
                                 positionedImages.add(
                                         new PositionedImage(
                                                 borderPiece,
-                                                rightXpos,
+                                                leftXpos,
                                                 yPos,
                                                 borderPiece.getWidth(),
                                                 useLastPieceHeight ? lastPieceHeigh : borderPiece.getHeight()));
