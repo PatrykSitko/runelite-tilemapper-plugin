@@ -36,12 +36,58 @@ public interface PiecesTool {
     }
 
     static interface Populator {
+
         static interface SynchronizationKeys {
 
             static interface BACKGROUND {
             }
 
             static interface BORDER {
+            }
+
+            static interface HORIZONTAL_LINE {
+            }
+
+        }
+
+        /**
+         * 
+         * @param arrayToPopulate the ArrayList where the positioned images will be put
+         *                        in.
+         * @param image           the image to be used.
+         * @param x               the x location where the horizontal line will start.
+         * @param y               the y location where the horizontal line will be
+         *                        positioned.
+         * @param width           the requested width of the horizontal line.
+         */
+        static void populateHorizontalLine(@Nonnull ArrayList<PositionedImage> arrayToPopulate,
+                @Nonnull final BufferedImage image, @Positive int x, @Positive int y,
+                @Positive int width) {
+            final ArrayList<PositionedImage> positionedImages = new ArrayList<>();
+            final int startingXposition = x;
+            final int yPos = y;
+            final float ammountOfPiecesFloat = PiecesTool.Calculator.calculateAmmountOfPieces(
+                    PiecesTool.Calculator.Orientation.HORIZONTAL
+                            .setPieceSize(image.getWidth()),
+                    width);
+            final int pieceWidth = image.getWidth();
+            final int lastPieceWidth = (int) (image.getWidth() *
+                    (ammountOfPiecesFloat - (int) ammountOfPiecesFloat));
+            final int ammountOfPieces = (int) ammountOfPiecesFloat +
+                    (lastPieceWidth != 0 ? 1 : 0);
+            for (int iterator = 0; iterator <= ammountOfPieces - 1; iterator++) {
+                final boolean isLastPiece = iterator == ammountOfPieces - 1;
+                final int positionedImageWidth = isLastPiece && lastPieceWidth > 0
+                        ? lastPieceWidth
+                        : pieceWidth;
+                final int xPos = startingXposition + iterator * pieceWidth;
+                synchronized (Populator.SynchronizationKeys.HORIZONTAL_LINE.class) {
+                    positionedImages.add(
+                            new PositionedImage(image, xPos, yPos, positionedImageWidth, image.getHeight()));
+                }
+            }
+            synchronized (Populator.SynchronizationKeys.HORIZONTAL_LINE.class) {
+                arrayToPopulate.addAll(positionedImages);
             }
         }
 
