@@ -2,6 +2,7 @@ package net.runelite.client.plugins.tileMapper.components;
 
 import java.awt.image.BufferedImage;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,7 @@ public interface Divider {
         private int y;
         @Setter
         private int width;
+        @Getter(AccessLevel.NONE)
         private Divider.Horizontal.Type dividerType;
 
         public void setPosition(int x, int y) {
