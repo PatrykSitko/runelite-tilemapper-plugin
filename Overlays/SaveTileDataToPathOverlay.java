@@ -4,11 +4,8 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.stream.Stream;
 
-import javax.imageio.ImageIO;
 import javax.inject.Inject;
 
 import net.runelite.api.Client;
@@ -19,7 +16,9 @@ import net.runelite.client.input.MouseListener;
 import net.runelite.client.plugins.tileMapper.TileMapperPlugin;
 import net.runelite.client.plugins.tileMapper.components.Background;
 import net.runelite.client.plugins.tileMapper.components.Button;
+import net.runelite.client.plugins.tileMapper.components.Divider;
 import net.runelite.client.plugins.tileMapper.events.ViewportChanged;
+import net.runelite.client.plugins.tileMapper.helpers.ImageLoader;
 import net.runelite.client.plugins.tileMapper.helpers.Viewport;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
@@ -40,6 +39,7 @@ public class SaveTileDataToPathOverlay
       300,
       Background.Type.DARK);
   private final Button exitButton;
+  private final Divider.Horizontal divider = new Divider.Horizontal(0, 0, 478, Divider.Horizontal.Type.DARK);
 
   @Inject
   public SaveTileDataToPathOverlay(TileMapperPlugin tileMapperPlugin) {
@@ -48,27 +48,15 @@ public class SaveTileDataToPathOverlay
     setPosition(OverlayPosition.DYNAMIC);
     setLayer(OverlayLayer.ABOVE_WIDGETS);
     setPriority(OverlayPriority.MED);
-    BufferedImage buttonImage = null, buttonImageHover = null;
-    try {
-      buttonImage = ImageIO.read(
-          SaveTileDataToPathOverlay.class.getResource(
-              "../buttons/close-menu-button.png"));
-      buttonImageHover = ImageIO.read(
-          SaveTileDataToPathOverlay.class.getResource(
-              "../buttons/close-menu-button-hover.png"));
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      exitButton = new Button(
-          -1,
-          -1,
-          buttonImage,
-          buttonImageHover,
-          () -> {
-            SAVE_DATA_BUTTON_OVERLAY.clearDisplayPathPickerOverlayVar();
-          });
-    }
     background.setOnOutOfBoundsClickAction(
+        () -> {
+          SAVE_DATA_BUTTON_OVERLAY.clearDisplayPathPickerOverlayVar();
+        });
+    exitButton = new Button(
+        -1,
+        -1,
+        ImageLoader.loadImage("../buttons/close-menu-button.png"),
+        ImageLoader.loadImage("../buttons/close-menu-button-hover.png"),
         () -> {
           SAVE_DATA_BUTTON_OVERLAY.clearDisplayPathPickerOverlayVar();
         });
@@ -127,6 +115,7 @@ public class SaveTileDataToPathOverlay
             7 -
             exitButton.getBounds().width,
         background.getBounds().y + 7);
+    divider.setLocation(background.getBounds().x + 5, background.getBounds().y + 29);
   }
 
   public void onCanvasSizeChanged(CanvasSizeChanged event) {
@@ -140,12 +129,14 @@ public class SaveTileDataToPathOverlay
   public void onGameTick(GameTick event) {
     background.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
     exitButton.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+    divider.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
   }
 
   @Override
   public Dimension render(Graphics2D graphics) {
     background.render(graphics);
     exitButton.render(graphics);
+    divider.render(graphics);
     return null;
   }
 
