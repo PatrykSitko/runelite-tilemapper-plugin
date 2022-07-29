@@ -52,10 +52,10 @@ public class SaveTileDataToPathOverlay
     try {
       buttonImage = ImageIO.read(
           SaveTileDataToPathOverlay.class.getResource(
-              "buttons/close-menu-button.png"));
+              "../buttons/close-menu-button.png"));
       buttonImageHover = ImageIO.read(
           SaveTileDataToPathOverlay.class.getResource(
-              "buttons/close-menu-button-hover.png"));
+              "../buttons/close-menu-button-hover.png"));
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
