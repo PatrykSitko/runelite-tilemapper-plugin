@@ -14,7 +14,7 @@ public interface FontLoader {
         try {
             customFont = Font
                     .createFont(Font.TRUETYPE_FONT, FontLoader.class.getResourceAsStream("../../" + resourcePath))
-                    .deriveFont(12f);
+                    .deriveFont(16f);
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             // register the font
             ge.registerFont(customFont);
