@@ -24,7 +24,7 @@ public interface Divider {
         @AllArgsConstructor
         @Getter
         public static enum Type {
-            DARK(ImageLoader.loadImage("../dividers/divider-horizontal-dark.png"));
+            DARK(ImageLoader.loadImage("dividers/divider-horizontal-dark.png"));
 
             private final BufferedImage divider;
         }

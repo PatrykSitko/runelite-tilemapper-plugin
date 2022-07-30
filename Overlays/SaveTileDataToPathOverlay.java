@@ -17,9 +17,10 @@ import net.runelite.client.plugins.tileMapper.TileMapperPlugin;
 import net.runelite.client.plugins.tileMapper.components.Background;
 import net.runelite.client.plugins.tileMapper.components.Button;
 import net.runelite.client.plugins.tileMapper.components.Divider;
+import net.runelite.client.plugins.tileMapper.components.Text;
 import net.runelite.client.plugins.tileMapper.events.ViewportChanged;
-import net.runelite.client.plugins.tileMapper.helpers.ImageLoader;
 import net.runelite.client.plugins.tileMapper.helpers.Viewport;
+import net.runelite.client.plugins.tileMapper.helpers.loaders.ImageLoader;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -40,6 +41,7 @@ public class SaveTileDataToPathOverlay
       Background.Type.DARK);
   private final Button exitButton;
   private final Divider.Horizontal divider = new Divider.Horizontal(0, 0, 478, Divider.Horizontal.Type.DARK);
+  private final Text title = new Text();
 
   @Inject
   public SaveTileDataToPathOverlay(TileMapperPlugin tileMapperPlugin) {
@@ -55,11 +57,12 @@ public class SaveTileDataToPathOverlay
     exitButton = new Button(
         -1,
         -1,
-        ImageLoader.loadImage("../buttons/close-menu-button.png"),
-        ImageLoader.loadImage("../buttons/close-menu-button-hover.png"),
+        ImageLoader.loadImage("buttons/close-menu-button.png"),
+        ImageLoader.loadImage("buttons/close-menu-button-hover.png"),
         () -> {
           SAVE_DATA_BUTTON_OVERLAY.clearDisplayPathPickerOverlayVar();
         });
+    title.setText(SAVE_DATA_BUTTON_OVERLAY.getHOVERINFO_TEXT());
   }
 
   private void updateComponentLocation() {
@@ -116,6 +119,10 @@ public class SaveTileDataToPathOverlay
             exitButton.getBounds().width,
         background.getBounds().y + 7);
     divider.setLocation(background.getBounds().x + 5, background.getBounds().y + 29);
+    title.setLocation(
+        background.getBounds().x + background.getBounds().width / 2 - title.getWidth() / 2
+            - exitButton.getBounds().width,
+        background.getBounds().y + 22);
   }
 
   public void onCanvasSizeChanged(CanvasSizeChanged event) {
@@ -130,6 +137,7 @@ public class SaveTileDataToPathOverlay
     background.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
     exitButton.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
     divider.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+    title.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
   }
 
   @Override
@@ -137,6 +145,7 @@ public class SaveTileDataToPathOverlay
     background.render(graphics);
     exitButton.render(graphics);
     divider.render(graphics);
+    title.render(graphics);
     return null;
   }
 

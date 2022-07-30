@@ -24,30 +24,30 @@ public class Background implements RenderableEntity, MouseListener {
   public static enum Type {
     LIGHT(
         // background
-        ImageLoader.loadImage("../backgrounds/background-light.png"),
+        ImageLoader.loadImage("backgrounds/background-light.png"),
         // corners
-        ImageLoader.loadImage("../borders/corners/left-top-corner-light.png"),
-        ImageLoader.loadImage("../borders/corners/right-top-corner-light.png"),
-        ImageLoader.loadImage("../borders/corners/left-bottom-corner-light.png"),
-        ImageLoader.loadImage("../borders/corners/right-bottom-corner-light.png"),
+        ImageLoader.loadImage("borders/corners/left-top-corner-light.png"),
+        ImageLoader.loadImage("borders/corners/right-top-corner-light.png"),
+        ImageLoader.loadImage("borders/corners/left-bottom-corner-light.png"),
+        ImageLoader.loadImage("borders/corners/right-bottom-corner-light.png"),
         // borders
-        ImageLoader.loadImage("../borders/left-border-light.png"),
-        ImageLoader.loadImage("../borders/top-border-light.png"),
-        ImageLoader.loadImage("../borders/right-border-light.png"),
-        ImageLoader.loadImage("../borders/bottom-border-light.png")),
+        ImageLoader.loadImage("borders/left-border-light.png"),
+        ImageLoader.loadImage("borders/top-border-light.png"),
+        ImageLoader.loadImage("borders/right-border-light.png"),
+        ImageLoader.loadImage("borders/bottom-border-light.png")),
     DARK(
         // background
-        ImageLoader.loadImage("../backgrounds/background-dark.png"),
+        ImageLoader.loadImage("backgrounds/background-dark.png"),
         // corners
-        ImageLoader.loadImage("../borders/corners/left-top-corner-dark.png"),
-        ImageLoader.loadImage("../borders/corners/right-top-corner-dark.png"),
-        ImageLoader.loadImage("../borders/corners/left-bottom-corner-dark.png"),
-        ImageLoader.loadImage("../borders/corners/right-bottom-corner-dark.png"),
+        ImageLoader.loadImage("borders/corners/left-top-corner-dark.png"),
+        ImageLoader.loadImage("borders/corners/right-top-corner-dark.png"),
+        ImageLoader.loadImage("borders/corners/left-bottom-corner-dark.png"),
+        ImageLoader.loadImage("borders/corners/right-bottom-corner-dark.png"),
         // borders
-        ImageLoader.loadImage("../borders/left-border-dark.png"),
-        ImageLoader.loadImage("../borders/top-border-dark.png"),
-        ImageLoader.loadImage("../borders/right-border-dark.png"),
-        ImageLoader.loadImage("../borders/bottom-border-dark.png"));
+        ImageLoader.loadImage("borders/left-border-dark.png"),
+        ImageLoader.loadImage("borders/top-border-dark.png"),
+        ImageLoader.loadImage("borders/right-border-dark.png"),
+        ImageLoader.loadImage("borders/bottom-border-dark.png"));
 
     // background
     private final BufferedImage background;

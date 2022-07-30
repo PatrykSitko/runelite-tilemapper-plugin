@@ -28,7 +28,7 @@ public class SaveDataButtonOverlay extends Overlay implements MouseListener {
   private final Client client;
   private final Color BUTTON_BACKGROUND_COLOR_NORMAL = new Color(108, 97, 83);
   private final Color BUTTON_BACKGROUND_COLOR_HOVER = new Color(50, 97, 83);
-  private final Image saveButtonImage = ImageLoader.loadImage("../buttons/save.png");
+  private final Image saveButtonImage = ImageLoader.loadImage("buttons/save.png");
   private Point location = new Point(0, 0);
   private Dimension dimension = new Dimension(30, 30);
   private boolean mouseIsHovering = false;
