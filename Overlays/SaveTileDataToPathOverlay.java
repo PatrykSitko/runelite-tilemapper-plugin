@@ -137,15 +137,15 @@ public class SaveTileDataToPathOverlay
   }
 
   public void onGameTick(GameTick event) {
-    background.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
-    exitButton.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
-    divider.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
-    title.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
   }
 
   @Override
   public Dimension render(Graphics2D graphics) {
     centerTitle();
+    background.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+    exitButton.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+    divider.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+    title.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
     background.render(graphics);
     exitButton.render(graphics);
     divider.render(graphics);
