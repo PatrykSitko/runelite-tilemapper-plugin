@@ -121,7 +121,7 @@ public class SaveTileDataToPathOverlay
     divider.setLocation(background.getBounds().x + 5, background.getBounds().y + 29);
     title.setLocation(
         background.getBounds().x + background.getBounds().width / 2 - title.getWidth() / 2
-            - exitButton.getBounds().width,
+            - exitButton.getBounds().width - 4,
         background.getBounds().y + 22);
   }
 
