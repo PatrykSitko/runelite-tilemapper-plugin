@@ -119,6 +119,9 @@ public class SaveTileDataToPathOverlay
             exitButton.getBounds().width,
         background.getBounds().y + 7);
     divider.setLocation(background.getBounds().x + 5, background.getBounds().y + 29);
+  }
+
+  public void centerTitle() {
     title.setLocation(
         background.getBounds().x + background.getBounds().width / 2 - title.getWidth() / 2
             - exitButton.getBounds().width - 4,
@@ -133,15 +136,7 @@ public class SaveTileDataToPathOverlay
     updateOverlayLocation();
   }
 
-  private boolean updatedOverlayLocation = false;
-
   public void onGameTick(GameTick event) {
-    if (SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay() && !updatedOverlayLocation) {
-      updatedOverlayLocation = true;
-      updateOverlayLocation();
-    } else if (updatedOverlayLocation == true) {
-      updatedOverlayLocation = false;
-    }
     background.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
     exitButton.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
     divider.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
@@ -150,6 +145,7 @@ public class SaveTileDataToPathOverlay
 
   @Override
   public Dimension render(Graphics2D graphics) {
+    centerTitle();
     background.render(graphics);
     exitButton.render(graphics);
     divider.render(graphics);
