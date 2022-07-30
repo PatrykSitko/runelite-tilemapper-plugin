@@ -12,9 +12,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import net.openhft.chronicle.core.annotation.Positive;
-import net.runelite.client.plugins.tileMapper.helpers.ImageLoader;
 import net.runelite.client.plugins.tileMapper.helpers.PiecesTool;
 import net.runelite.client.plugins.tileMapper.helpers.PositionedImage;
+import net.runelite.client.plugins.tileMapper.helpers.loaders.ImageLoader;
 import net.runelite.client.ui.overlay.RenderableEntity;
 
 public interface Divider {
