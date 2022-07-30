@@ -65,7 +65,7 @@ public class SaveTileDataToPathOverlay
     title.setText(SAVE_DATA_BUTTON_OVERLAY.getHOVERINFO_TEXT());
   }
 
-  private void updateComponentLocation() {
+  private void updateOverlayLocation() {
     final Viewport viewportInUse = tileMapperPlugin.getCurrentViewportType();
     final Client client = tileMapperPlugin.getClient();
     final int xNegativeOffset_case_resizable_modern = 108;
@@ -126,14 +126,22 @@ public class SaveTileDataToPathOverlay
   }
 
   public void onCanvasSizeChanged(CanvasSizeChanged event) {
-    updateComponentLocation();
+    updateOverlayLocation();
   }
 
   public void onViewportChanged(ViewportChanged event) {
-    updateComponentLocation();
+    updateOverlayLocation();
   }
 
+  private boolean updatedOverlayLocation = false;
+
   public void onGameTick(GameTick event) {
+    if (SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay() && !updatedOverlayLocation) {
+      updatedOverlayLocation = true;
+      updateOverlayLocation();
+    } else if (updatedOverlayLocation == true) {
+      updatedOverlayLocation = false;
+    }
     background.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
     exitButton.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
     divider.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
