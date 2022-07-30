@@ -5,16 +5,17 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 
 import javax.inject.Inject;
 
+import lombok.Getter;
 import net.runelite.api.Client;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.input.MouseListener;
 import net.runelite.client.plugins.tileMapper.TileMapperPlugin;
+import net.runelite.client.plugins.tileMapper.helpers.loaders.ImageLoader;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -27,14 +28,13 @@ public class SaveDataButtonOverlay extends Overlay implements MouseListener {
   private final Client client;
   private final Color BUTTON_BACKGROUND_COLOR_NORMAL = new Color(108, 97, 83);
   private final Color BUTTON_BACKGROUND_COLOR_HOVER = new Color(50, 97, 83);
-  private final Image saveButtonImage = Toolkit
-      .getDefaultToolkit()
-      .getImage(this.getClass().getResource("../buttons/save.png"));
+  private final Image saveButtonImage = ImageLoader.loadImage("../buttons/save.png");
   private Point location = new Point(0, 0);
   private Dimension dimension = new Dimension(30, 30);
   private boolean mouseIsHovering = false;
   private boolean displayPathPickerOverlay = false;
   private final TooltipComponent hoverInfo;
+  @Getter
   private final String HOVERINFO_TEXT = "Save Collected Tile Data";
   private Integer hoverinfoTextWidth;
 
