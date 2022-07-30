@@ -128,6 +128,13 @@ public class SaveTileDataToPathOverlay
         background.getBounds().y + 22);
   }
 
+  public void checkVisibility() {
+    background.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+    exitButton.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+    divider.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+    title.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+  }
+
   public void onCanvasSizeChanged(CanvasSizeChanged event) {
     updateOverlayLocation();
   }
@@ -142,10 +149,7 @@ public class SaveTileDataToPathOverlay
   @Override
   public Dimension render(Graphics2D graphics) {
     centerTitle();
-    background.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
-    exitButton.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
-    divider.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
-    title.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+    checkVisibility();
     background.render(graphics);
     exitButton.render(graphics);
     divider.render(graphics);
