@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tileMapper.helpers;
+package net.runelite.client.plugins.tileMapper.helpers.loaders;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
