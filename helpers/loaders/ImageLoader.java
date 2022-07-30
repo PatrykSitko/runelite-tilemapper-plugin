@@ -6,10 +6,10 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public interface ImageLoader {
-    static BufferedImage loadImage(String path) {
+    static BufferedImage loadImage(String resourcePath) {
         BufferedImage image = null;
         try {
-            image = ImageIO.read(ImageLoader.class.getResource(path));
+            image = ImageIO.read(ImageLoader.class.getResource("../../" + resourcePath));
         } catch (IOException e) {
             e.printStackTrace();
         }
