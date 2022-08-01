@@ -85,9 +85,9 @@ public class Background implements RenderableEntity, MouseListener {
   @Setter
   private Background.OnOutOfBoundsClickAction onOutOfBoundsClickAction;
 
-  public Background(int x, int y, int width, int height, Type backgoundType) {
+  public Background(int x, int y, int width, int height, Type backgroundType) {
     bounds.setBounds(x, y, width, height);
-    this.backgroundType = backgoundType;
+    this.backgroundType = backgroundType;
   }
 
   public void setLocation(int x, int y) {
