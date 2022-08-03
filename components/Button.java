@@ -10,25 +10,92 @@ import java.awt.image.BufferedImage;
 import lombok.Getter;
 import lombok.Setter;
 import net.runelite.client.input.MouseListener;
+import net.runelite.client.plugins.tileMapper.helpers.Action;
 import net.runelite.client.ui.overlay.RenderableEntity;
 
 public class Button implements RenderableEntity, MouseListener {
 
-  public static interface Action {
-    public void onClick();
-  }
-
   @Getter
   private final Rectangle bounds = new Rectangle();
 
-  private BufferedImage normal;
-  private BufferedImage hover;
-  private Button.Action action;
-  private boolean isMouseHovering;
+  private volatile boolean isMouseHovering;
 
   @Getter
   @Setter
-  private boolean visible;
+  private volatile boolean visible;
+
+  private BufferedImage normal;
+  private BufferedImage hover;
+  @Setter
+  private volatile Action onClickLeftButtonAction;
+  @Setter
+  private volatile Action onClickMiddleButtonAction;
+  @Setter
+  private volatile Action onClickRightButtonAction;
+  @Setter
+  private volatile Action onHoldLeftButtonAction;
+  @Setter
+  private volatile Action onHoldMiddleButtonAction;
+  @Setter
+  private volatile Action onHoldRightButtonAction;
+  @Setter
+  private volatile boolean ignoreHoldingingButton = false;
+  @Setter
+  private volatile int triggerHoldingButtonAfterAmmountOfMillis = 250;
+  private volatile Thread actionThread;
+  private volatile MouseEvent currentMousePressedEvent;
+  private Runnable actionThreadRunnable = () -> {
+    final long startTime = System.currentTimeMillis();
+    boolean isHoldingMouseButton = false;
+    if (ignoreHoldingingButton) {
+      actionThread.interrupt();
+    }
+    while (!actionThread.isInterrupted()) {
+      if ((isHoldingMouseButton = startTime + triggerHoldingButtonAfterAmmountOfMillis <= System.currentTimeMillis())) {
+        switch (currentMousePressedEvent.getButton()) {
+          case MouseEvent.BUTTON1:
+            if (onHoldLeftButtonAction != null) {
+              onHoldLeftButtonAction.perform();
+            }
+            break;
+          case MouseEvent.BUTTON2:
+            if (onHoldMiddleButtonAction != null) {
+              onHoldMiddleButtonAction.perform();
+            }
+            break;
+          case MouseEvent.BUTTON3:
+            if (onHoldRightButtonAction != null) {
+              onHoldRightButtonAction.perform();
+            }
+            break;
+        }
+        try {
+          Thread.sleep(0, 100);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+    if ((!isHoldingMouseButton || ignoreHoldingingButton) && visible && isMouseHovering) {
+      switch (currentMousePressedEvent.getButton()) {
+        case MouseEvent.BUTTON1:
+          if (onClickLeftButtonAction != null) {
+            onClickLeftButtonAction.perform();
+          }
+          break;
+        case MouseEvent.BUTTON2:
+          if (onClickMiddleButtonAction != null) {
+            onClickMiddleButtonAction.perform();
+          }
+          break;
+        case MouseEvent.BUTTON3:
+          if (onClickRightButtonAction != null) {
+            onClickRightButtonAction.perform();
+          }
+          break;
+      }
+    }
+  };
 
   public Button(
       int x,
@@ -36,21 +103,18 @@ public class Button implements RenderableEntity, MouseListener {
       int width,
       int height,
       BufferedImage normal,
-      BufferedImage hover,
-      Button.Action action) {
+      BufferedImage hover) {
     this.bounds.setBounds(new Rectangle(x, y, width, height));
     this.normal = normal;
     this.hover = hover;
-    this.action = action;
   }
 
   public Button(
       int x,
       int y,
       BufferedImage normal,
-      BufferedImage hover,
-      Button.Action action) {
-    this(x, y, normal.getWidth(), normal.getHeight(), normal, hover, action);
+      BufferedImage hover) {
+    this(x, y, normal.getWidth(), normal.getHeight(), normal, hover);
   }
 
   public void setLocation(int x, int y) {
@@ -74,8 +138,7 @@ public class Button implements RenderableEntity, MouseListener {
 
   @Override
   public MouseEvent mouseClicked(MouseEvent mouseEvent) {
-    if (visible && isMouseHovering && mouseEvent.getButton() == MouseEvent.BUTTON1) {
-      this.action.onClick();
+    if (visible && isMouseHovering) {
       mouseEvent.consume();
     }
     return mouseEvent;
@@ -84,6 +147,10 @@ public class Button implements RenderableEntity, MouseListener {
   @Override
   public MouseEvent mousePressed(MouseEvent mouseEvent) {
     if (visible && isMouseHovering) {
+      currentMousePressedEvent = mouseEvent;
+      actionThread = new Thread(actionThreadRunnable);
+      actionThread.setDaemon(true);
+      actionThread.start();
       mouseEvent.consume();
     }
     return mouseEvent;
@@ -91,6 +158,9 @@ public class Button implements RenderableEntity, MouseListener {
 
   @Override
   public MouseEvent mouseReleased(MouseEvent mouseEvent) {
+    if (actionThread != null && !actionThread.isInterrupted()) {
+      actionThread.interrupt();
+    }
     if (visible && isMouseHovering) {
       mouseEvent.consume();
     }
