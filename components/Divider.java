@@ -66,7 +66,7 @@ public interface Divider {
                 PiecesTool.Populator.populateHorizontalLine(divider, dividerType.getDivider(), location.x, location.y,
                         width);
             }
-            divider.forEach(entry -> entry.draw(graphics));
+            divider.forEach(entry -> entry.render(graphics));
             return null;
         }
     }

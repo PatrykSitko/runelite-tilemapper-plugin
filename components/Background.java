@@ -124,8 +124,8 @@ public class Background implements RenderableEntity, MouseListener {
               backgroundType.getBottomBorder(), backgroundType.getLeftBorder() },
           bounds);
     }
-    background.forEach(entry -> entry.draw(graphics));
-    border.forEach(entry -> entry.draw(graphics));
+    background.forEach(entry -> entry.render(graphics));
+    border.forEach(entry -> entry.render(graphics));
   }
 
   private boolean mouseInBounds(MouseEvent mouseEvent) {
