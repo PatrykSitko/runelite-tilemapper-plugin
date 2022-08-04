@@ -4,11 +4,13 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import lombok.Getter;
 import net.runelite.client.ui.overlay.RenderableEntity;
 
 public class PositionedImage implements RenderableEntity {
 
     private final BufferedImage image;
+    @Getter
     private final int x, y, width, height;
 
     public PositionedImage(
