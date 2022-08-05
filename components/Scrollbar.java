@@ -142,22 +142,22 @@ public interface Scrollbar {
         }
 
         private void updateThumb() {
-            if (thumbBounds.equals(previousThumbBounds)) {
-                return;
+            if (!thumbBounds.equals(previousThumbBounds) || thumbYmovedPosition != previousThumbYmovedPosition) {
+                previousThumbYmovedPosition = thumbYmovedPosition;
+                previousThumbBounds = new Rectangle(thumbBounds);
+                thumb = new ArrayList<>();
+                thumb.add(new PositionedImage(scrollbarThumbTopImage, thumbBounds.x,
+                        thumbBounds.y,
+                        scrollbarThumbTopImage.getWidth(), scrollbarThumbTopImage.getHeight()));
+                PiecesTool.Populator.populateVerticalLine(thumb, scrollbarThumbMiddleImage, thumbBounds.x,
+                        thumbBounds.y + scrollbarThumbTopImage.getHeight(),
+                        thumbBounds.height - scrollbarThumbTopImage.getHeight()
+                                - scrollbarThumbBottomImage.getHeight());
+                thumb.add(new PositionedImage(scrollbarThumbBottomImage, thumbBounds.x,
+                        thumbBounds.y + thumbBounds.height - scrollbarThumbBottomImage.getHeight(),
+                        scrollbarThumbBottomImage.getWidth(),
+                        scrollbarThumbBottomImage.getHeight()));
             }
-            previousThumbBounds = new Rectangle(thumbBounds);
-            thumb = new ArrayList<>();
-            thumb.add(new PositionedImage(scrollbarThumbTopImage, thumbBounds.x,
-                    thumbBounds.y,
-                    scrollbarThumbTopImage.getWidth(), scrollbarThumbTopImage.getHeight()));
-            PiecesTool.Populator.populateVerticalLine(track, scrollbarThumbMiddleImage, thumbBounds.x,
-                    thumbBounds.y + scrollbarThumbTopImage.getHeight(),
-                    thumbBounds.height - scrollbarThumbTopImage.getHeight()
-                            - scrollbarThumbBottomImage.getHeight());
-            thumb.add(new PositionedImage(scrollbarThumbBottomImage, thumbBounds.x,
-                    thumbBounds.y + thumbBounds.height - scrollbarThumbBottomImage.getHeight(),
-                    scrollbarThumbBottomImage.getWidth(),
-                    scrollbarThumbBottomImage.getHeight()));
         }
 
         @Getter
@@ -178,34 +178,23 @@ public interface Scrollbar {
                             (trackPieceHeight, trackPieceHeight0) -> trackPieceHeight + trackPieceHeight0);
         }
 
-        private int getThumbStartingPosition() {
-            return trackBounds.y + thumbBounds.height;
-        }
-
         private int getThumbCurrentPosition() {
-            return thumbBounds.y + thumbBounds.height;
-        }
-
-        private int getThumbEndingPosition() {
-            return trackBounds.y + trackBounds.height;
-        }
-
-        private int normalizeThumbPosition(int positionToNormalize) {
-            return positionToNormalize - trackBounds.y;
+            return thumbBounds.y - trackBounds.y;
         }
 
         private int getThumbMovementSpace() {
-            return normalizeThumbPosition(getThumbEndingPosition())
-                    - normalizeThumbPosition(getThumbStartingPosition());
+            return trackBounds.height - thumbBounds.height;
         }
 
         public Pair<Integer, Integer> getCurrentPortionToDisplay() {
             if (!visible) {
                 return null;
             }
-            final int numberToConvert = normalizeThumbPosition(getThumbCurrentPosition());
-            final int currentPosition = (int) toPct(numberToConvert,
-                    thumbBounds.height,
+            final int numberToConvert = getThumbCurrentPosition();
+            final int currentPosition = (int) toPct(
+                    numberToConvert > getThumbMovementSpace() ? getThumbMovementSpace()
+                            : numberToConvert < 0 ? 0 : numberToConvert,
+                    0,
                     getThumbMovementSpace(),
                     requiredContainerHeight - availableContainerHeight);
             return new ImmutablePair<Integer, Integer>(currentPosition, currentPosition + availableContainerHeight);
@@ -220,6 +209,8 @@ public interface Scrollbar {
         private boolean updateSubcomponentsRequired = true;
 
         private boolean visible;
+        private boolean mouseInThumbBounds;
+        private boolean enabledDraggingMode;
 
         public void setVisible(boolean visible) {
             this.visible = visible;
@@ -249,7 +240,8 @@ public interface Scrollbar {
             scrollTowardsBottomButton.setLocation(this.bounds.x,
                     this.bounds.y + this.bounds.height - scrollTowardsBottomButton.getBounds().height);
             trackBounds.setLocation(this.bounds.x, this.bounds.y + scrollTowardsTopButton.getBounds().height);
-            thumbBounds.setLocation(this.bounds.x, this.bounds.y + scrollTowardsTopButttonImage.getHeight());
+            thumbBounds.setLocation(this.bounds.x,
+                    this.bounds.y + scrollTowardsTopButttonImage.getHeight() + thumbYmovedPosition);
         }
 
         private void updateDimensions() {
@@ -310,6 +302,7 @@ public interface Scrollbar {
 
         @Override
         public MouseEvent mouseReleased(MouseEvent mouseEvent) {
+            enabledDraggingMode = false;
             return mouseEvent;
         }
 
@@ -323,13 +316,33 @@ public interface Scrollbar {
             return mouseEvent;
         }
 
+        private int thumbYOffsetFromMousePoint;
+        private int previousThumbYmovedPosition = -1;
+        private int thumbYmovedPosition;
+
         @Override
         public MouseEvent mouseDragged(MouseEvent mouseEvent) {
+            if (mouseInThumbBounds && !enabledDraggingMode) {
+                enabledDraggingMode = true;
+                thumbYOffsetFromMousePoint = mouseEvent.getY() - thumbBounds.y;
+            }
+            if (enabledDraggingMode) {
+                final int newYposition = mouseEvent.getY() - thumbYOffsetFromMousePoint;
+                thumbYmovedPosition = (newYposition < trackBounds.y ? trackBounds.y
+                        : newYposition + thumbBounds.height > trackBounds.y + trackBounds.height
+                                ? trackBounds.y + trackBounds.height - thumbBounds.height
+                                : newYposition)
+                        - trackBounds.y;
+                updateSubcomponentsRequired = true;
+            }
             return mouseEvent;
         }
 
         @Override
         public MouseEvent mouseMoved(MouseEvent mouseEvent) {
+            mouseInThumbBounds = mouseEvent.getX() >= thumbBounds.x
+                    && mouseEvent.getX() <= thumbBounds.x + thumbBounds.width && mouseEvent.getY() >= thumbBounds.y
+                    && mouseEvent.getY() <= thumbBounds.y + thumbBounds.height;
             return mouseEvent;
         }
 
