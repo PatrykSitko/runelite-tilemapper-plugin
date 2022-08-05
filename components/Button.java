@@ -18,7 +18,7 @@ public class Button implements RenderableEntity, MouseListener {
   @Getter
   private final Rectangle bounds = new Rectangle();
 
-  private volatile boolean isMouseHovering;
+  private volatile boolean isMouseInBounds;
 
   @Getter
   @Setter
@@ -54,7 +54,16 @@ public class Button implements RenderableEntity, MouseListener {
       actionThread.interrupt();
     }
     while (!mouseReleased) {
-      if ((isHoldingMouseButton = startTime + triggerHoldingButtonAfterAmmountOfMillis <= System.currentTimeMillis())) {
+      if (!isMouseInBounds) {
+        try {
+          Thread.sleep(0, 1);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+        continue;
+      }
+      if ((isHoldingMouseButton = startTime + triggerHoldingButtonAfterAmmountOfMillis <= System
+          .currentTimeMillis())) {
         switch (currentMousePressedEvent.getButton()) {
           case MouseEvent.BUTTON1:
             if (onHoldLeftButtonAction != null) {
@@ -79,7 +88,7 @@ public class Button implements RenderableEntity, MouseListener {
         }
       }
     }
-    if ((!isHoldingMouseButton || ignoreHoldingingButton) && visible && isMouseHovering) {
+    if ((!isHoldingMouseButton || ignoreHoldingingButton) && visible && isMouseInBounds) {
       switch (currentMousePressedEvent.getButton()) {
         case MouseEvent.BUTTON1:
           if (onClickLeftButtonAction != null) {
@@ -129,13 +138,22 @@ public class Button implements RenderableEntity, MouseListener {
     bounds.setLocation(x, y);
   }
 
+  private boolean mouseInBounds(MouseEvent mouseEvent) {
+    final Point mouseLocation = mouseEvent.getPoint();
+    final boolean inBounds_horizontalLocation = mouseLocation.x >= bounds.x
+        && mouseLocation.x <= bounds.x + bounds.width;
+    final boolean inBounds_verticalLocation = mouseLocation.y >= bounds.y &&
+        mouseLocation.y <= bounds.y + bounds.height;
+    return inBounds_horizontalLocation && inBounds_verticalLocation;
+  }
+
   @Override
   public Dimension render(Graphics2D graphics) {
     if (!visible) {
       return null;
     }
     graphics.drawImage(
-        isMouseHovering ? hover : normal,
+        isMouseInBounds ? hover : normal,
         bounds.x,
         bounds.y,
         bounds.width,
@@ -146,7 +164,7 @@ public class Button implements RenderableEntity, MouseListener {
 
   @Override
   public MouseEvent mouseClicked(MouseEvent mouseEvent) {
-    if (visible && isMouseHovering) {
+    if (visible && isMouseInBounds) {
       mouseEvent.consume();
     }
     return mouseEvent;
@@ -155,7 +173,7 @@ public class Button implements RenderableEntity, MouseListener {
   @Override
   public MouseEvent mousePressed(MouseEvent mouseEvent) {
     mouseReleased = false;
-    if (visible && isMouseHovering) {
+    if (visible && isMouseInBounds) {
       currentMousePressedEvent = mouseEvent;
       actionThread = new Thread(actionThreadRunnable);
       actionThread.setDaemon(true);
@@ -171,7 +189,7 @@ public class Button implements RenderableEntity, MouseListener {
     if (actionThread != null && !actionThread.isInterrupted()) {
       actionThread.interrupt();
     }
-    if (visible && isMouseHovering) {
+    if (visible && isMouseInBounds) {
       mouseEvent.consume();
     }
     return mouseEvent;
@@ -189,17 +207,13 @@ public class Button implements RenderableEntity, MouseListener {
 
   @Override
   public MouseEvent mouseDragged(MouseEvent mouseEvent) {
+    isMouseInBounds = mouseInBounds(mouseEvent);
     return mouseEvent;
   }
 
   @Override
   public MouseEvent mouseMoved(MouseEvent mouseEvent) {
-    final Point mouseLocation = mouseEvent.getPoint();
-    final boolean inBounds_horizontalLocation = mouseLocation.x >= bounds.x
-        && mouseLocation.x <= bounds.x + bounds.width;
-    final boolean inBounds_verticalLocation = mouseLocation.y >= bounds.y &&
-        mouseLocation.y <= bounds.y + bounds.height;
-    isMouseHovering = inBounds_horizontalLocation && inBounds_verticalLocation;
+    isMouseInBounds = mouseInBounds(mouseEvent);
     return mouseEvent;
   }
 }
