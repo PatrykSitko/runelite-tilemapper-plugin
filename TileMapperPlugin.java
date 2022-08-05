@@ -97,6 +97,7 @@ public class TileMapperPlugin extends Plugin implements Runnable {
     overlayManager.add(saveTileDataToPathOverlay);
     mouseManager.registerMouseListener(saveDataButtonOverlay);
     mouseManager.registerMouseListener(saveTileDataToPathOverlay);
+    mouseManager.registerMouseWheelListener(saveTileDataToPathOverlay);
     keyManager.registerKeyListener(saveTileDataToPathOverlay);
   }
 
@@ -107,6 +108,7 @@ public class TileMapperPlugin extends Plugin implements Runnable {
     overlayManager.remove(saveTileDataToPathOverlay);
     mouseManager.unregisterMouseListener(saveDataButtonOverlay);
     mouseManager.unregisterMouseListener(saveTileDataToPathOverlay);
+    mouseManager.unregisterMouseWheelListener(saveTileDataToPathOverlay);
     keyManager.unregisterKeyListener(saveTileDataToPathOverlay);
   }
 
