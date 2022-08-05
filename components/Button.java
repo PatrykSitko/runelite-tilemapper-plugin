@@ -40,10 +40,11 @@ public class Button implements RenderableEntity, MouseListener {
   private volatile Action onHoldRightButtonAction;
   @Setter
   private volatile boolean ignoreHoldingingButton = false;
-  @Setter
+  private volatile int repeatHoldingButtonActionEveryMillis = 0;
   private volatile int repeatHoldingButtonActionEveryNanos = 100;
   @Setter
   private volatile int triggerHoldingButtonAfterAmmountOfMillis = 250;
+  private volatile boolean mouseReleased = true;
   private volatile Thread actionThread;
   private volatile MouseEvent currentMousePressedEvent;
   private Runnable actionThreadRunnable = () -> {
@@ -52,7 +53,7 @@ public class Button implements RenderableEntity, MouseListener {
     if (ignoreHoldingingButton) {
       actionThread.interrupt();
     }
-    while (!actionThread.isInterrupted()) {
+    while (!mouseReleased) {
       if ((isHoldingMouseButton = startTime + triggerHoldingButtonAfterAmmountOfMillis <= System.currentTimeMillis())) {
         switch (currentMousePressedEvent.getButton()) {
           case MouseEvent.BUTTON1:
@@ -72,7 +73,7 @@ public class Button implements RenderableEntity, MouseListener {
             break;
         }
         try {
-          Thread.sleep(0, repeatHoldingButtonActionEveryNanos);
+          Thread.sleep(repeatHoldingButtonActionEveryMillis, repeatHoldingButtonActionEveryNanos);
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
@@ -119,6 +120,11 @@ public class Button implements RenderableEntity, MouseListener {
     this(x, y, normal.getWidth(), normal.getHeight(), normal, hover);
   }
 
+  public void repeatHoldingButtonAction(int millis, int nanos) {
+    this.repeatHoldingButtonActionEveryMillis = millis;
+    this.repeatHoldingButtonActionEveryNanos = nanos;
+  }
+
   public void setLocation(int x, int y) {
     bounds.setLocation(x, y);
   }
@@ -148,6 +154,7 @@ public class Button implements RenderableEntity, MouseListener {
 
   @Override
   public MouseEvent mousePressed(MouseEvent mouseEvent) {
+    mouseReleased = false;
     if (visible && isMouseHovering) {
       currentMousePressedEvent = mouseEvent;
       actionThread = new Thread(actionThreadRunnable);
@@ -160,6 +167,7 @@ public class Button implements RenderableEntity, MouseListener {
 
   @Override
   public MouseEvent mouseReleased(MouseEvent mouseEvent) {
+    mouseReleased = true;
     if (actionThread != null && !actionThread.isInterrupted()) {
       actionThread.interrupt();
     }
