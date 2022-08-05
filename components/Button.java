@@ -41,6 +41,8 @@ public class Button implements RenderableEntity, MouseListener {
   @Setter
   private volatile boolean ignoreHoldingingButton = false;
   @Setter
+  private volatile int repeatHoldingButtonActionEveryNanos = 100;
+  @Setter
   private volatile int triggerHoldingButtonAfterAmmountOfMillis = 250;
   private volatile Thread actionThread;
   private volatile MouseEvent currentMousePressedEvent;
@@ -70,7 +72,7 @@ public class Button implements RenderableEntity, MouseListener {
             break;
         }
         try {
-          Thread.sleep(0, 100);
+          Thread.sleep(0, repeatHoldingButtonActionEveryNanos);
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
