@@ -16,6 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import lombok.Getter;
 import net.runelite.client.input.MouseListener;
+import net.runelite.client.plugins.tileMapper.helpers.Action;
 import net.runelite.client.plugins.tileMapper.helpers.PiecesTool;
 import net.runelite.client.plugins.tileMapper.helpers.PositionedImage;
 import net.runelite.client.plugins.tileMapper.helpers.loaders.ImageLoader;
@@ -200,13 +201,31 @@ public interface Scrollbar {
             return new ImmutablePair<Integer, Integer>(currentPosition, currentPosition + availableContainerHeight);
         }
 
+        private volatile int thumbYmovedPosition;
         // buttons
         private final Button scrollTowardsTopButton = new Button(0, 0, scrollTowardsTopButttonImage,
                 scrollTowardsTopButttonImage);
         private final Button scrollTowardsBottomButton = new Button(0, 0, scrollTowardsBottomButtonImage,
                 scrollTowardsBottomButtonImage);
+        {
+            Action scrollTowardsTopAction = () -> {
+                thumbYmovedPosition = thumbYmovedPosition - 1 > 0 ? thumbYmovedPosition - 1 : 0;
+                updateSubcomponentsRequired = true;
+            };
+            Action scrollTowardsBottomAction = () -> {
+                thumbYmovedPosition = thumbYmovedPosition + 1 < getThumbMovementSpace() ? thumbYmovedPosition + 1
+                        : getThumbMovementSpace();
+                updateSubcomponentsRequired = true;
+            };
+            scrollTowardsTopButton.repeatHoldingButtonAction(50, 0);
+            scrollTowardsBottomButton.repeatHoldingButtonAction(50, 0);
+            scrollTowardsTopButton.setOnHoldLeftButtonAction(scrollTowardsTopAction);
+            scrollTowardsTopButton.setOnClickLeftButtonAction(scrollTowardsTopAction);
+            scrollTowardsBottomButton.setOnHoldLeftButtonAction(scrollTowardsBottomAction);
+            scrollTowardsBottomButton.setOnClickLeftButtonAction(scrollTowardsBottomAction);
+        }
 
-        private boolean updateSubcomponentsRequired = true;
+        private volatile boolean updateSubcomponentsRequired = true;
 
         private boolean visible;
         private boolean mouseInThumbBounds;
@@ -292,36 +311,47 @@ public interface Scrollbar {
 
         @Override
         public MouseEvent mouseClicked(MouseEvent mouseEvent) {
+            scrollTowardsTopButton.mouseClicked(mouseEvent);
+            scrollTowardsBottomButton.mouseClicked(mouseEvent);
             return mouseEvent;
         }
 
         @Override
         public MouseEvent mousePressed(MouseEvent mouseEvent) {
+            scrollTowardsTopButton.mousePressed(mouseEvent);
+            scrollTowardsBottomButton.mousePressed(mouseEvent);
             return mouseEvent;
         }
 
         @Override
         public MouseEvent mouseReleased(MouseEvent mouseEvent) {
+            scrollTowardsTopButton.mouseReleased(mouseEvent);
+            scrollTowardsBottomButton.mouseReleased(mouseEvent);
             enabledDraggingMode = false;
             return mouseEvent;
         }
 
         @Override
         public MouseEvent mouseEntered(MouseEvent mouseEvent) {
+            scrollTowardsTopButton.mouseEntered(mouseEvent);
+            scrollTowardsBottomButton.mouseEntered(mouseEvent);
             return mouseEvent;
         }
 
         @Override
         public MouseEvent mouseExited(MouseEvent mouseEvent) {
+            scrollTowardsTopButton.mouseExited(mouseEvent);
+            scrollTowardsBottomButton.mouseExited(mouseEvent);
             return mouseEvent;
         }
 
         private int thumbYOffsetFromMousePoint;
         private int previousThumbYmovedPosition = -1;
-        private int thumbYmovedPosition;
 
         @Override
         public MouseEvent mouseDragged(MouseEvent mouseEvent) {
+            scrollTowardsTopButton.mouseDragged(mouseEvent);
+            scrollTowardsBottomButton.mouseDragged(mouseEvent);
             if (mouseInThumbBounds && !enabledDraggingMode) {
                 enabledDraggingMode = true;
                 thumbYOffsetFromMousePoint = mouseEvent.getY() - thumbBounds.y;
@@ -340,6 +370,8 @@ public interface Scrollbar {
 
         @Override
         public MouseEvent mouseMoved(MouseEvent mouseEvent) {
+            scrollTowardsTopButton.mouseMoved(mouseEvent);
+            scrollTowardsBottomButton.mouseMoved(mouseEvent);
             mouseInThumbBounds = mouseEvent.getX() >= thumbBounds.x
                     && mouseEvent.getX() <= thumbBounds.x + thumbBounds.width && mouseEvent.getY() >= thumbBounds.y
                     && mouseEvent.getY() <= thumbBounds.y + thumbBounds.height;
