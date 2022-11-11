@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -13,10 +14,13 @@ import net.runelite.api.events.CanvasSizeChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.input.KeyListener;
 import net.runelite.client.input.MouseListener;
+import net.runelite.client.input.MouseWheelListener;
 import net.runelite.client.plugins.tileMapper.TileMapperPlugin;
 import net.runelite.client.plugins.tileMapper.components.Background;
 import net.runelite.client.plugins.tileMapper.components.Button;
 import net.runelite.client.plugins.tileMapper.components.Divider;
+import net.runelite.client.plugins.tileMapper.components.PathPicker;
+import net.runelite.client.plugins.tileMapper.components.Scrollbar;
 import net.runelite.client.plugins.tileMapper.components.Text;
 import net.runelite.client.plugins.tileMapper.events.ViewportChanged;
 import net.runelite.client.plugins.tileMapper.helpers.Viewport;
@@ -28,7 +32,7 @@ import net.runelite.client.ui.overlay.OverlayPriority;
 
 public class SaveTileDataToPathOverlay
     extends Overlay
-    implements MouseListener, KeyListener {
+    implements MouseListener, KeyListener, MouseWheelListener {
 
   // private Viewport viewport;
   private final SaveDataButtonOverlay SAVE_DATA_BUTTON_OVERLAY;
@@ -42,6 +46,8 @@ public class SaveTileDataToPathOverlay
   private final Button exitButton;
   private final Divider.Horizontal divider = new Divider.Horizontal(0, 0, 478, Divider.Horizontal.Type.DARK);
   private final Text title = new Text();
+  private final PathPicker pathPicker = new PathPicker(-1, -1, 458, 195, Background.Type.DARK);
+  private final Scrollbar.Vertical scrollbar = new Scrollbar.Vertical(0, 0, 195);
 
   @Inject
   public SaveTileDataToPathOverlay(TileMapperPlugin tileMapperPlugin) {
@@ -58,11 +64,15 @@ public class SaveTileDataToPathOverlay
         -1,
         -1,
         ImageLoader.loadImage("buttons/close-menu-button.png"),
-        ImageLoader.loadImage("buttons/close-menu-button-hover.png"),
+        ImageLoader.loadImage("buttons/close-menu-button-hover.png"));
+    exitButton.setIgnoreHoldingingButton(true);
+    exitButton.setOnClickLeftButtonAction(
         () -> {
           SAVE_DATA_BUTTON_OVERLAY.clearDisplayPathPickerOverlayVar();
         });
     title.setText(SAVE_DATA_BUTTON_OVERLAY.getHOVERINFO_TEXT());
+    scrollbar.setRequiredContainerHeight(1000);
+    scrollbar.setRequestedMinimumThumbHeight(39);
   }
 
   private void updateOverlayLocation() {
@@ -119,6 +129,8 @@ public class SaveTileDataToPathOverlay
             exitButton.getBounds().width,
         background.getBounds().y + 7);
     divider.setLocation(background.getBounds().x + 5, background.getBounds().y + 29);
+    pathPicker.setLocation(background.getBounds().x + 15, background.getBounds().y + 45);
+    scrollbar.setLocation(pathPicker.getBounds().x, pathPicker.getBounds().y);
   }
 
   public void centerTitle() {
@@ -133,6 +145,8 @@ public class SaveTileDataToPathOverlay
     exitButton.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
     divider.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
     title.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+    pathPicker.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
+    scrollbar.setVisible(SAVE_DATA_BUTTON_OVERLAY.displayPathPickerOverlay());
   }
 
   public void onCanvasSizeChanged(CanvasSizeChanged event) {
@@ -154,6 +168,9 @@ public class SaveTileDataToPathOverlay
     exitButton.render(graphics);
     divider.render(graphics);
     title.render(graphics);
+    pathPicker.render(graphics);
+    scrollbar.render(graphics);
+    // System.out.println(scrollbar.getCurrentPortionToDisplay());
     return null;
   }
 
@@ -186,6 +203,7 @@ public class SaveTileDataToPathOverlay
         mouseEvent,
         new MouseEvent[] {
             exitButton.mousePressed(mouseEvent),
+            scrollbar.mousePressed(mouseEvent),
             background.mousePressed(mouseEvent),
         });
   }
@@ -196,6 +214,7 @@ public class SaveTileDataToPathOverlay
         mouseEvent,
         new MouseEvent[] {
             exitButton.mouseReleased(mouseEvent),
+            scrollbar.mouseReleased(mouseEvent),
             background.mouseReleased(mouseEvent),
         });
   }
@@ -216,6 +235,7 @@ public class SaveTileDataToPathOverlay
         mouseEvent,
         new MouseEvent[] {
             exitButton.mouseDragged(mouseEvent),
+            scrollbar.mouseDragged(mouseEvent),
             background.mouseDragged(mouseEvent),
         });
   }
@@ -226,6 +246,7 @@ public class SaveTileDataToPathOverlay
         mouseEvent,
         new MouseEvent[] {
             exitButton.mouseMoved(mouseEvent),
+            scrollbar.mouseMoved(mouseEvent),
             background.mouseMoved(mouseEvent),
         });
   }
@@ -243,5 +264,10 @@ public class SaveTileDataToPathOverlay
   @Override
   public void keyReleased(KeyEvent e) {
     e.consume();
+  }
+
+  @Override
+  public MouseWheelEvent mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
+    return mouseWheelEvent;
   }
 }
